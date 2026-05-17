@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Virtual envs
+.venv/
+venv/
+ENV/
+env/
+
+# uv
+.uv/
+
+# Secrets / Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+api_keys.json
+*_signing_key*
+*_private*
+
+# Local storage (development)
+*.db
+*.sqlite
+*.sqlite3
+chroma_data/
+local_storage/
+*.parquet
+*.arrow
+
+# Receipts (contain user data)
+receipts/
+*.dsse
+*.receipt.json
+
+# Reasoning traces (contain user data)
+traces/
+*.trace.jsonl
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_meta
+
+# Build artifacts
+*.whl
+node_modules/

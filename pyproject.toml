@@ -1,0 +1,31 @@
+[project]
+name = "anamnesis-workspace"
+version = "0.1.0"
+description = "Verifiable reasoning-trace memory for LLM agents (workspace root)"
+requires-python = ">=3.11"
+
+[tool.uv.workspace]
+members = ["anamnesis-py", "anamnesis-server"]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "ARG"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_ignores = true
+warn_return_any = true
+no_implicit_optional = true
+
+[tool.pytest.ini_options]
+testpaths = ["anamnesis-py/tests", "anamnesis-server/tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"
