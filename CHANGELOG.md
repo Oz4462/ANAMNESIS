@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.2.6] — 2026-05-17
+
+### Added — Fourth hard-validation pass (+55 tests, 274 Py + 22 TS = 296 total)
+- `test_determinism.py` — 9 byte-exactness tests: canonical payload bytes
+  identical for identical receipts, Ed25519 signatures bit-stable for the
+  same seed + message, signature changes when ONE field differs, top-level
+  keys alphabetically sorted in the encoded JSON, hash_embedder byte-stable.
+- `test_idempotency_replay.py` — 6 server-level cases documenting that
+  /v1/captures is NOT idempotent on request_id (intentional for MVP) and
+  that receipt verification IS idempotent: replay yields identical
+  recovered payload, tampered receipt fails consistently on both attempts,
+  cross-tenant trace_ids never collide.
+- `test_http_middleware.py` — 13 HTTP-layer tests: content-type negotiation,
+  invalid JSON returns 422 not 500, 405 method-not-allowed, large 50 KB
+  body accepted, gzip-encoded body handled without 5xx, /docs and /redoc
+  render HTML, no stack-traces leaked on error paths.
+- `test_storage_cross_instance.py` — 7 cases: two TraceStores on the same
+  db file see the same rows, embedder dimension change between sessions
+  doesn't crash retrieval, close releases the handle for outside sqlite,
+  in-memory stores stay isolated, metadata persists.
+- `test_receipt_chain.py` — 6 evidence-chain cases: three signed receipts
+  forming a chain all verify, chain_prev tampering breaks verification,
+  receipts arrive in temporal order, byte-identical replay after JSON
+  round-trip, two-signer chains require both pubkeys, chain bytes scale
+  linearly (no hidden quadratic).
+- `anamnesis-ts/test/signer.test.ts` — +13 TS tests (9 → 22 total): key
+  generation, seed round-trip, sign+verify, deterministic-signature
+  property, payload-type / keyid / signature-array failure modes,
+  canonical-payload byte stability across calls, PAE determinism.
+
 ## [0.2.5] — 2026-05-17
 
 ### Fixed (real bugs discovered by the new tests)
