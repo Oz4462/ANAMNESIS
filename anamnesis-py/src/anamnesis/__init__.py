@@ -30,6 +30,14 @@ from anamnesis.receipts import (
     ReceiptVerifier,
     SignedEnvelope,
 )
+from anamnesis.savings import (
+    PROVIDER_REGISTRY,
+    ProviderPricing,
+    SavingsReport,
+    WorkloadRow,
+    load_workload_jsonl,
+    run_savings_simulation,
+)
 from anamnesis.storage import (
     Embedder,
     ReasoningStep,
@@ -38,11 +46,12 @@ from anamnesis.storage import (
 )
 
 __all__ = [
+    "DISTILL_PROMPT_TEMPLATE",
+    "PROVIDER_REGISTRY",
     "AnthropicCapture",
     "BoundRef",
     "CapturedTrace",
     "ConformalCalibrator",
-    "DISTILL_PROMPT_TEMPLATE",
     "DeepSeekCapture",
     "Distiller",
     "Embedder",
@@ -51,16 +60,21 @@ __all__ = [
     "ModelRef",
     "MondrianCalibrator",
     "OpenAICapture",
+    "ProviderPricing",
     "ReasoningStep",
     "Receipt",
     "ReceiptSigner",
     "ReceiptVerifier",
     "ReuseBound",
+    "SavingsReport",
     "SignedEnvelope",
     "TraceStore",
+    "WorkloadRow",
     "__version__",
     "adapter_for",
     "distill_traces",
     "hash_embedder",
+    "load_workload_jsonl",
     "one_minus_cosine",
+    "run_savings_simulation",
 ]

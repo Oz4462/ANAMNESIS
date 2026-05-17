@@ -137,6 +137,51 @@ def distill(from_file: str, distiller: str, provider: str, model: str) -> None:
 
 
 @cli.command()
+@click.option(
+    "--from-file", "-i",
+    type=click.Path(exists=True, dir_okay=False),
+    required=True,
+    help="JSONL file with {query, thinking_tokens, output_tokens} per line",
+)
+@click.option(
+    "--provider", "-p",
+    type=click.Choice(["claude-opus-4-7", "o3-pro", "deepseek-r1", "gemini-2.5-flash"]),
+    default="claude-opus-4-7",
+    show_default=True,
+)
+@click.option("--alpha", type=float, default=0.1, show_default=True)
+@click.option(
+    "--min-calibration", type=int, default=30, show_default=True,
+    help="Minimum scores before the conformal threshold is computed",
+)
+def savings(from_file: str, provider: str, alpha: float, min_calibration: int) -> None:
+    """Estimate token-savings on a prospect's own workload (no LLM calls)."""
+    from anamnesis.savings import (
+        PROVIDER_REGISTRY,
+        load_workload_jsonl,
+        run_savings_simulation,
+    )
+    rows = list(load_workload_jsonl(from_file))
+    pricing = PROVIDER_REGISTRY[provider]
+    report = run_savings_simulation(
+        rows,
+        pricing=pricing,
+        alpha=alpha,
+        min_calibration=min_calibration,
+    )
+    out = report.to_dict()
+    click.echo(json.dumps(out, indent=2))
+    click.echo(
+        f"\n=== summary ===\n"
+        f"  {report.reuse_rate_pct:.1f}% of queries reusable, "
+        f"saving {report.savings_rate_pct:.1f}% of thinking-tokens\n"
+        f"  ${report.reused_thinking_cost_usd:.2f} saved out of "
+        f"${report.total_thinking_cost_usd:.2f} (provider {provider})",
+        err=True,
+    )
+
+
+@cli.command()
 def demo() -> None:
     """End-to-end demo: seed traces, calibrate, retrieve, compose, sign, verify."""
     embedder = embedder_for("hash", dim=128)

@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.2.8] — 2026-05-17
+
+### Added — Savings Calculator (the POC closer)
+- `anamnesis.savings` module: offline simulator that takes a JSONL transcript
+  of (query, thinking_tokens, output_tokens) triples and reports
+    * reuse rate, savings rate, dollar value at provider rates
+    * conformal bound (tau, alpha, n_calibration) used to decide reuse
+  No LLM calls, no API keys, runs entirely on the prospect's machine
+  against their own workload.
+- `ProviderPricing` constants for claude-opus-4-7, o3-pro, deepseek-r1,
+  gemini-2.5-flash with thinking-token rates from public pricing pages.
+- `anamnesis savings` CLI subcommand wired to `--from-file`, `--provider`,
+  `--alpha`, `--min-calibration`.
+- `examples/04_savings_demo.py` — runs the simulator across all four
+  providers on a synthetic 110-query workload, prints per-provider $$$.
+- `test_savings.py` — 10 tests: redundant workload yields high reuse,
+  diverse workload yields low reuse, dollar math exact, JSONL load
+  round trip, empty lines tolerated, invalid lines raise with line
+  number, registry has known models, zero-token rows handled.
+
+### Why this matters for a prospect call
+- The pitch "we save 40-70% of your reasoning tokens" is unverifiable
+  until you point it at a real workload. This module produces the
+  per-workload number a CFO can sign off on.
+- No need to hand us an API key or a dataset -- the simulator can run
+  inside the customer's VPC against their JSONL transcript.
+
 ## [0.2.7] — 2026-05-17
 
 ### Added — Fifth hard-validation pass (HARD tests, +67 Py = 341 Py + 22 TS = 363 total)
