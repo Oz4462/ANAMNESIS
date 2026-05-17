@@ -22,6 +22,6 @@ examples/
 landing/
 .idea/
 .vscode/
-README.md
 CHANGELOG.md
 LICENSE
+# README.md is needed at build time because pyproject.toml references it
