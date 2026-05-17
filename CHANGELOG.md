@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.2.2] — 2026-05-17
+
+### Added — Reality-validation pass
+- `anamnesis_server.main.TenantRegistry` learns a `db_root` parameter and
+  honours `ANAMNESIS_DB_ROOT` env var to persist per-tenant sqlite files.
+- `_signer_from_env_or_random` recovers a deterministic Ed25519 issuer from
+  `ANAMNESIS_SIGNING_SEED_B64` + `ANAMNESIS_SIGNING_KEYID` so receipts
+  issued before a server restart still verify against the restored pubkey.
+- `benchmarks/bench_10k.py` — insert + retrieval performance test on 10K steps.
+- `benchmarks/multi_tenant_load.py` — async httpx load test, 20 tenants
+  parallel, asserts calibration isolation + receipt issuance.
+- `benchmarks/persistence_test.py` — boots two sequential uvicorn processes
+  with shared env, verifies sqlite rows + pre-restart receipts survive.
+
+### Reality-validated
+- 10K traces: 12 MB memory, p50 14.6 ms / p95 18.6 ms / p99 40 ms retrieval.
+- Multi-tenant: 20 tenants in 2.39 s, 0 failures, 8.4 tenants/sec (~343 HTTP RPS).
+- Sqlite persistence over hard restart: 5 traces + 10 steps survive,
+  pre-restart receipt still verifies (deterministic signer via env).
+- In-browser receipt verifier (`anamnesis-web/src/pages/receipts.astro`):
+  Playwright/Chromium loaded, Python-signed envelope verified, tamper
+  detection produced "FAILED" as expected.
+
+### Known limitation
+- Numpy vector index lives in-process; after restart `query_similar_steps`
+  is empty until the index is rebuilt from sqlite rows. Fix is queued
+  for v0.3.
+
+## [0.2.1] — 2026-05-17
+
+### Fixed
+- Ruff cleanups (29 violations) so CI passes on Ubuntu Python 3.11/3.12/3.13.
+- `.dockerignore` no longer hides `README.md` (pyproject references it).
+
 ## [0.2.0] — 2026-05-17
 
 ### Added — Phase 2 (autonomous build extension)

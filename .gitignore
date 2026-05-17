@@ -81,3 +81,8 @@ node_modules/
 dist/
 .astro/
 .tsup/
+
+# Benchmark scratch
+_persist_smoke/
+bench_persist.db
+.playwright-mcp/

@@ -16,6 +16,8 @@ would swap the in-process registries for a shared sqlite/postgres + redis.
 
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any
 
 from anamnesis import __version__ as sdk_version
@@ -54,18 +56,41 @@ def _make_embedder() -> Any:
     return hash_embedder(dim=128)
 
 
+def _signer_from_env_or_random() -> ReceiptSigner:
+    """If ANAMNESIS_SIGNING_SEED_B64 is set, recover deterministic signer.
+
+    Otherwise a fresh random key is generated each process start. The env
+    variable lets ops keep the same issuer keypair across server restarts,
+    which is required for receipts issued before the restart to remain
+    verifiable against the same public key.
+    """
+    keyid = os.environ.get("ANAMNESIS_SIGNING_KEYID", "anamnesis-server-default")
+    seed = os.environ.get("ANAMNESIS_SIGNING_SEED_B64")
+    if seed:
+        return ReceiptSigner.from_seed_b64(seed, key_id=keyid)
+    return ReceiptSigner.generate(keyid)
+
+
 class TenantRegistry:
     """Lazy per-tenant stores, calibrators, and retrievers."""
 
-    def __init__(self) -> None:
+    def __init__(self, db_root: Path | None = None) -> None:
         self._stores: dict[str, TraceStore] = {}
         self._calibrators: dict[str, ConformalCalibrator] = {}
         self._retrievers: dict[str, ConformalRetriever] = {}
+        self._db_root = db_root
+        if self._db_root is not None:
+            self._db_root.mkdir(parents=True, exist_ok=True)
 
     def store(self, tenant: str) -> TraceStore:
         s = self._stores.get(tenant)
         if s is None:
-            s = TraceStore(embedder=_make_embedder())
+            if self._db_root is not None:
+                safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in tenant)
+                db_path = self._db_root / f"{safe}.db"
+                s = TraceStore(embedder=_make_embedder(), db_path=db_path)
+            else:
+                s = TraceStore(embedder=_make_embedder())
             self._stores[tenant] = s
         return s
 
@@ -91,14 +116,18 @@ class TenantRegistry:
 def create_app(
     signer: ReceiptSigner | None = None,
     distiller: HeuristicDistiller | None = None,
+    db_root: Path | None = None,
 ) -> FastAPI:
     app = FastAPI(
         title="ANAMNESIS",
         version=server_version,
         description="EU AI Act Article 15 + 50 compliant reasoning-trace reuse server.",
     )
-    registry = TenantRegistry()
-    active_signer = signer or ReceiptSigner.generate("anamnesis-server-default")
+    if db_root is None:
+        env_root = os.environ.get("ANAMNESIS_DB_ROOT")
+        db_root = Path(env_root) if env_root else None
+    registry = TenantRegistry(db_root=db_root)
+    active_signer = signer or _signer_from_env_or_random()
     active_distiller = distiller or HeuristicDistiller()
 
     @app.get("/health", response_model=HealthOut)
