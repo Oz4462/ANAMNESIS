@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.2.7] — 2026-05-17
+
+### Added — Fifth hard-validation pass (HARD tests, +67 Py = 341 Py + 22 TS = 363 total)
+- `test_crypto_attacks.py` — 16 adversarial crypto patterns: all-zero
+  pubkey, signature truncation to 0/32/128 bytes, key substitution with
+  attacker pubkey, PAE length-prefix confusion, payloadType swap, random
+  garbage sig, two-bad-sigs replay, mixed valid/invalid sigs (one wins),
+  missing keyid, extra base64 padding, non-canonical JSON, empty keyset.
+- `test_storage_corruption.py` — 10 disk-level disasters: truncated db,
+  random bytes for file, empty file = fresh schema, exotic UTF-8 round
+  trip (RTL, emoji ZWJ, umlauts), embedded NUL byte, concurrent writers
+  no corruption, forward-schema with extra column readable by old client,
+  nonexistent directory raises, read-only file raises on write, path-
+  traversal step_id stored safely.
+- `test_state_machine.py` — Hypothesis RuleBasedStateMachine: 30 random
+  pipeline traces × 40 steps each = ~1200 random interleavings of add_trace
+  / add_step / add_calibration / query / sign_receipt with 5 invariants
+  checked after every step.
+- `test_pathological.py` — 9 DoS-grade inputs: 100K retrieved_step_ids
+  sign+verify each under 1.5s, 1 MB thinking_text round trip, 100K
+  calibration writes cap at max_window, 10K-step query under 500ms,
+  empty-text step indexed, 500 KB single-step text, 20× repeated signing
+  of large receipts (10K + 50K), 1000 independent concurrent calibrators.
+- `test_encoding_attacks.py` — 11 byte-level games: BOM-prefixed payload
+  breaks signature, trailing whitespace breaks signature, url-safe alphabet
+  swap rejected, lone surrogate raises UnicodeEncodeError on content_hash,
+  API rejects raw invalid-UTF8 body, payload_type with extra space
+  rejected, internal b64 whitespace tolerated as wire variation
+  (documented), forward-compatible extra envelope fields accepted, full
+  Unicode + Chinese + emoji round trip.
+- `test_time_edges.py` — 20 timestamp edges: epoch 0, Y2K38, year 9999,
+  year 99999, BC year, DST boundary, naive datetime, microseconds, Z
+  suffix, ±14h timezone, timezone with seconds offset, default is UTC,
+  default is strictly increasing under sleep.
+
 ## [0.2.6] — 2026-05-17
 
 ### Added — Fourth hard-validation pass (+55 tests, 274 Py + 22 TS = 296 total)
