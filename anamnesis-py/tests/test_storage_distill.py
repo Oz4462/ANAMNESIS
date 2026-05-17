@@ -6,7 +6,6 @@ import json
 
 import numpy as np
 import pytest
-
 from anamnesis.capture import CapturedTrace
 from anamnesis.distill import (
     DISTILL_PROMPT_TEMPLATE,

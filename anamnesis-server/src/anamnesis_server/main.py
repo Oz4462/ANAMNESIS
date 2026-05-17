@@ -18,9 +18,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
-
 from anamnesis import __version__ as sdk_version
 from anamnesis.capture import CapturedTrace
 from anamnesis.compose import compose
@@ -34,6 +31,8 @@ from anamnesis.receipts import (
 )
 from anamnesis.retrieve import ConformalRetriever
 from anamnesis.storage import TraceStore, hash_embedder
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 
 from anamnesis_server import __version__ as server_version
 from anamnesis_server.eu_compliance import compliance_matrix

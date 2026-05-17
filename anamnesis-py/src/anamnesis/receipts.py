@@ -30,7 +30,7 @@ import hashlib
 import json
 import uuid
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from nacl.exceptions import BadSignatureError
@@ -86,7 +86,7 @@ class Receipt:
     retrieved_step_ids: list[str]
     bound: BoundRef
     cost_saved_tokens: int
-    issued_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    issued_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     receipt_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     schema_version: str = RECEIPT_SCHEMA_VERSION
     eu_ai_act_claims: dict[str, bool] = field(
@@ -137,7 +137,7 @@ class SignedEnvelope:
         return json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "SignedEnvelope":
+    def from_dict(cls, data: dict[str, Any]) -> SignedEnvelope:
         if "payloadType" not in data or "payload" not in data or "signatures" not in data:
             raise ValueError("envelope missing required DSSE fields")
         sigs = data["signatures"]
@@ -150,7 +150,7 @@ class SignedEnvelope:
         )
 
     @classmethod
-    def from_json(cls, text: str) -> "SignedEnvelope":
+    def from_json(cls, text: str) -> SignedEnvelope:
         return cls.from_dict(json.loads(text))
 
 
@@ -175,11 +175,11 @@ class ReceiptSigner:
         return _b64(bytes(self._sk.verify_key))
 
     @classmethod
-    def generate(cls, key_id: str) -> "ReceiptSigner":
+    def generate(cls, key_id: str) -> ReceiptSigner:
         return cls(SigningKey.generate(), key_id=key_id)
 
     @classmethod
-    def from_seed_b64(cls, seed_b64: str, key_id: str) -> "ReceiptSigner":
+    def from_seed_b64(cls, seed_b64: str, key_id: str) -> ReceiptSigner:
         sk = SigningKey(_b64decode(seed_b64))
         return cls(sk, key_id=key_id)
 
@@ -206,7 +206,7 @@ class ReceiptVerifier:
         self._keys = dict(public_keys)
 
     @classmethod
-    def from_public_key_b64(cls, key_id: str, pubkey_b64: str) -> "ReceiptVerifier":
+    def from_public_key_b64(cls, key_id: str, pubkey_b64: str) -> ReceiptVerifier:
         return cls({key_id: VerifyKey(_b64decode(pubkey_b64))})
 
     def verify(self, envelope: SignedEnvelope) -> Receipt:

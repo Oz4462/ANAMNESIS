@@ -20,8 +20,9 @@ from __future__ import annotations
 import json
 import os
 import re
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from typing import Callable, Iterable, Protocol
+from typing import Protocol
 
 from anamnesis.capture import CapturedTrace
 from anamnesis.storage import ReasoningStep

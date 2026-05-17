@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-
-from click.testing import CliRunner
 
 from anamnesis.cli import cli
+from click.testing import CliRunner
 
 
 def test_cli_status_runs():
@@ -89,6 +87,8 @@ def test_cli_verify_round_trip(tmp_path):
 
 
 def test_cli_verify_detects_tampering(tmp_path):
+    import base64
+
     from anamnesis.receipts import (
         BoundRef,
         ModelRef,
@@ -96,7 +96,6 @@ def test_cli_verify_detects_tampering(tmp_path):
         ReceiptSigner,
         SignedEnvelope,
     )
-    import base64
 
     signer = ReceiptSigner.generate("cli-key")
     receipt = Receipt(

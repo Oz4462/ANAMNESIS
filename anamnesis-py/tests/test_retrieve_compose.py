@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-
 from anamnesis.compose import compose
 from anamnesis.conformal import ConformalCalibrator
 from anamnesis.retrieve import ConformalRetriever, RetrievalResult

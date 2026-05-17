@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import pytest
-
 from anamnesis.capture import CapturedTrace
 from anamnesis.distill import (
     AnthropicHaikuDistiller,

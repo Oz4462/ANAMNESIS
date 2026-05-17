@@ -18,6 +18,10 @@ target-version = "py311"
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "ARG"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+# DSSE / in-toto wire types are camelCase by spec; we keep them verbatim.
+"anamnesis-py/src/anamnesis/receipts.py" = ["N815"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true

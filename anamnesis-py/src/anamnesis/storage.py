@@ -22,9 +22,9 @@ import json
 import sqlite3
 import threading
 import uuid
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable
 
 import numpy as np
 
@@ -54,7 +54,7 @@ class ReasoningStep:
         preconditions: Iterable[str] = (),
         produces: Iterable[str] = (),
         tags: Iterable[str] = (),
-    ) -> "ReasoningStep":
+    ) -> ReasoningStep:
         return cls(
             step_id="step_" + uuid.uuid4().hex[:16],
             capture_id=capture_id,
@@ -237,7 +237,10 @@ class TraceStore:
             order = np.argsort(scores)[: max(0, k)]
             ids_to_fetch = [self._step_ids[int(idx)] for idx in order]
             local_scores = [float(scores[int(idx)]) for idx in order]
-        return [(self.get_step(sid), s) for sid, s in zip(ids_to_fetch, local_scores)]
+        return [
+            (self.get_step(sid), s)
+            for sid, s in zip(ids_to_fetch, local_scores, strict=True)
+        ]
 
     def list_steps_for_trace(self, capture_id: str) -> list[ReasoningStep]:
         with self._lock:

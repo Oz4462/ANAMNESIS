@@ -14,7 +14,6 @@ from anamnesis import (
     ReceiptVerifier,
 )
 
-
 FAKE_ANTHROPIC_RESPONSE = {
     "id": "msg_demo_001",
     "model": "claude-opus-4-7",

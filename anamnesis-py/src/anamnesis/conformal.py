@@ -24,9 +24,9 @@ exact threshold and confidence used for each reuse decision.
 
 from __future__ import annotations
 
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from math import ceil
-from typing import Callable, Iterable
 
 import numpy as np
 

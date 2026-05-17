@@ -6,8 +6,6 @@ import base64
 import json
 
 import pytest
-from nacl.exceptions import BadSignatureError
-
 from anamnesis.receipts import (
     BoundRef,
     ModelRef,
@@ -17,6 +15,7 @@ from anamnesis.receipts import (
     SignedEnvelope,
     _pae,
 )
+from nacl.exceptions import BadSignatureError
 
 
 def _make_receipt(retrieved=("step_a", "step_b"), saved=1234) -> Receipt:

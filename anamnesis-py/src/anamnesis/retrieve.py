@@ -17,8 +17,8 @@ and the retrieved step ids for audit.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 from anamnesis.conformal import ConformalCalibrator, ReuseBound
 from anamnesis.storage import ReasoningStep, TraceStore

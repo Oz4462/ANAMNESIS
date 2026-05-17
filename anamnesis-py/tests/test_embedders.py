@@ -6,13 +6,11 @@ import importlib.util
 
 import numpy as np
 import pytest
-
 from anamnesis.storage import (
     embedder_for,
     fastembed_embedder,
     hash_embedder,
 )
-
 
 FASTEMBED_AVAILABLE = importlib.util.find_spec("fastembed") is not None
 
