@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.2.3] — 2026-05-17
+
+### Added — Hard-validation test pack (143 total: 134 Python + 9 TS)
+- `anamnesis-py/tests/test_properties.py` — Hypothesis property-based tests:
+  sign/verify round-trip, single-byte payload/signature flip detection,
+  canonical-JSON invariants, conformal-monotonicity, hash_embedder unit-norm,
+  envelope-from-garbage non-crash. 100 random examples per property.
+- `anamnesis-server/tests/test_adversarial.py` — 12 adversarial inputs:
+  SQL injection in tenant_id, missing fields, negative tokens, Unicode +
+  emoji round-trip, 60 KB thinking texts, score/k/alpha range validation,
+  path-traversal, unknown-provider extensibility.
+- `anamnesis-ts/src/signer.ts` — TS-side DSSE signer using @noble/ed25519,
+  exported alongside the existing verifier so any Node tool can issue
+  receipts the Python verifier accepts.
+- `benchmarks/cross_lang_receipts.py` — Python signs ↔ Node verifies and
+  Node signs ↔ Python verifies, asserts bit-exact DSSE PAE + canonical JSON
+  agreement across both implementations.
+- `benchmarks/bench_100k.py` — 100K-step retrieval scaling curve.
+- `benchmarks/stress_1000_tenants.py` — 1000 concurrent tenants vs uvicorn.
+- `benchmarks/coverage_empirical.py` — empirical conformal coverage on
+  uniform / pareto / lognormal / bimodal / half-normal, plus drift
+  scenarios that intentionally break exchangeability.
+
+### Reality-validated this session
+- Cross-language receipts: Py→TS verified, TS→Py verified (bit-exact).
+- 100K steps: 121 MB mem, p50 411ms / p99 660ms (linear scaling, no index).
+- 1000 concurrent tenants: 100% success, 48.5s, ~20.6 tenants/s, p99 11.7s
+  end-to-end (12 HTTP calls per tenant).
+- Coverage on 5 non-uniform shapes: empirical within ±0.2% of theory.
+- Drift coverage: documented gap from theory (74–80% vs 90% target).
+
 ## [0.2.2] — 2026-05-17
 
 ### Added — Reality-validation pass

@@ -8,6 +8,12 @@ export {
   verifyEnvelope,
 } from "./receipts.js";
 export type { VerifierKey } from "./receipts.js";
+export {
+  generateSigningKey,
+  signReceipt,
+  signingKeyFromSeedB64,
+} from "./signer.js";
+export type { SigningKey } from "./signer.js";
 export type {
   CalibrationStatusOut,
   CaptureIn,
