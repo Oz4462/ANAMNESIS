@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.2.4] — 2026-05-17
+
+### Fixed
+- `TraceStore.__init__` now rebuilds the in-memory vector index from sqlite,
+  so a process restart no longer leaves `query_similar_steps` empty.
+  Closes the v0.2.2 known limitation.
+
+### Added — Second hard-validation pass (+29 tests, 163 Py + 9 TS = 172 total)
+- `test_concurrency.py` — 16-thread torture against shared TraceStore +
+  ConformalCalibrator: no lost steps under 3200-step racing inserts,
+  no errors on parallel reads-during-writes, calibration counter perfect
+  under 16-thread contention, 8000 racing uuid step ids all unique.
+- `test_openapi.py` — `/openapi.json` is a valid OpenAPI 3.x spec
+  (validated via openapi-spec-validator), exposes all six endpoints,
+  carries the documented Pydantic schemas, declares the alpha range.
+- `test_cli_subprocess.py` — exercises the actual `python -m anamnesis.cli`
+  entry point (not just CliRunner), proves the pyproject script binding
+  works for status / keygen / demo / distill / verify / help / unknown.
+- `test_index_rebuild.py` — five scenarios confirming the new lazy
+  rebuild: row-count match, score-ordering preserved, empty-db silent,
+  numpy matrix shape correct, and the full "v0.2.2 broken scenario"
+  (server restart + retrieval) now recovers candidates.
+- `test_receipt_size.py` — sign+verify at 1/10/100/1K/5K/10K retrieved
+  step ids. 10K steps = 170 KB envelope, 2.4ms sign, 1.8ms verify.
+  Asserts <2 MB envelope at 10K and payload-hash determinism.
+- `test_memory_smoke.py` — 2000 reuse cycles in one process, RSS grew
+  11.4 MB (5.7 KB / request — noted for v0.3 investigation, not a leak).
+  Calibrator sliding window confirmed bounded at max_window=4096.
+
 ## [0.2.3] — 2026-05-17
 
 ### Added — Hard-validation test pack (143 total: 134 Python + 9 TS)

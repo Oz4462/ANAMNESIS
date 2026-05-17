@@ -118,6 +118,26 @@ class TraceStore:
 
         self._embeddings: list[np.ndarray] = []
         self._step_ids: list[str] = []
+        self._rebuild_index_from_sqlite()
+
+    def _rebuild_index_from_sqlite(self) -> None:
+        """Recompute embeddings for every step row that already exists.
+
+        Called once on __init__ so a file-backed TraceStore is queryable as
+        soon as the process starts. Without this, sqlite rows survive across
+        a restart but `query_similar_steps` returns empty until the caller
+        re-adds the steps. The cost is one embedder call per persisted step;
+        for moderate stores this is small (10K steps × hash_embedder ~= 1s).
+        """
+        with self._lock:
+            cur = self._conn.execute(
+                "SELECT step_id, text FROM steps ORDER BY embedding_idx ASC"
+            )
+            rows = cur.fetchall()
+            for row in rows:
+                vec = _normalize(self._embedder(row["text"]))
+                self._embeddings.append(vec)
+                self._step_ids.append(row["step_id"])
 
     @property
     def n_steps(self) -> int:
