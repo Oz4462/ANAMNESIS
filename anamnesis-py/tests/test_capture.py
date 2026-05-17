@@ -247,7 +247,7 @@ def test_adapter_for_dispatches_by_name():
     assert isinstance(adapter_for("OpenAI"), OpenAICapture)
     assert isinstance(adapter_for("DEEPSEEK"), DeepSeekCapture)
     with pytest.raises(ValueError):
-        adapter_for("mistral")
+        adapter_for("bedrock")
 
 
 def test_request_id_auto_generated_when_missing():

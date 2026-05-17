@@ -1,0 +1,21 @@
+---
+interface Props {
+  label: string;
+  value: string | number;
+  hint?: string;
+  tone?: "calm" | "good" | "warn" | "bad";
+}
+
+const { label, value, hint, tone = "calm" } = Astro.props;
+const toneClass = {
+  calm: "border-signal-calm text-signal-calm",
+  good: "border-signal-good text-signal-good",
+  warn: "border-signal-warn text-signal-warn",
+  bad: "border-signal-bad text-signal-bad",
+}[tone];
+---
+<div class={`border-l-4 ${toneClass} bg-ink-900 px-5 py-4 rounded`}>
+  <div class="text-xs uppercase tracking-widest text-ink-300">{label}</div>
+  <div class="mt-1 text-2xl text-ink-50">{value}</div>
+  {hint && <div class="mt-1 text-xs text-ink-500">{hint}</div>}
+</div>

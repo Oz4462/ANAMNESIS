@@ -1,0 +1,61 @@
+---
+import Base from "@/layouts/Base.astro";
+
+const article15 = [
+  { clause: "15(1)", text: "Designed and developed to achieve an appropriate level of accuracy, robustness, and cybersecurity throughout their lifecycle.", evidence: ["bound.tau", "bound.alpha", "bound.n_calibration"] },
+  { clause: "15(2)", text: "Levels of accuracy and the relevant accuracy metrics are declared in the accompanying instructions of use.", evidence: ["bound.score_name", "bound.alpha"] },
+  { clause: "15(3)", text: "Technical solutions to address AI-specific vulnerabilities, including measures to prevent, detect, respond to, resolve, and control attacks.", evidence: ["schema_version", "issued_at"] },
+  { clause: "15(4)", text: "Robust against errors, faults, or inconsistencies. Operates with a consistent performance throughout the lifecycle.", evidence: ["bound.tau", "bound.alpha", "bound.n_calibration"] },
+];
+const article50 = [
+  { clause: "50(2)", text: "Providers of generative AI systems ensure the outputs are marked in a machine-readable format and detectable as artificially generated or manipulated.", evidence: ["capture_hash", "model.provider", "model.name"] },
+  { clause: "50(4)", text: "Deployers disclose AI generation when content is published with the purpose of informing the public on matters of public interest.", evidence: ["receipt_id", "issued_at", "tenant_id"] },
+];
+---
+<Base title="ANAMNESIS · EU AI Act mapping">
+  <h1 class="text-2xl text-ink-50 mb-4">EU AI Act compliance mapping</h1>
+  <p class="text-ink-300 text-sm max-w-3xl mb-10">
+    Each signed receipt carries the fields below so a notified body can verify every Article 15 / 50 clause
+    mechanically. This page is the same data the server returns at <code class="text-ink-50">/v1/compliance/eu_ai_act</code>.
+  </p>
+
+  <section class="mb-12">
+    <h2 class="text-xl text-ink-50 mb-4">Article 15 — Accuracy, robustness, cybersecurity</h2>
+    <div class="space-y-3">
+      {article15.map((c) => (
+        <article class="bg-ink-900 border border-ink-700 rounded p-4 text-sm">
+          <div class="flex items-center justify-between text-ink-50">
+            <span class="text-base">{c.clause}</span>
+            <span class="text-xs text-ink-500">{c.evidence.length} evidence fields</span>
+          </div>
+          <p class="text-ink-300 mt-2">{c.text}</p>
+          <ul class="mt-2 flex flex-wrap gap-2">
+            {c.evidence.map((e) => (
+              <li class="text-xs bg-ink-700 text-ink-50 px-2 py-0.5 rounded">{e}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section>
+    <h2 class="text-xl text-ink-50 mb-4">Article 50 — Transparency</h2>
+    <div class="space-y-3">
+      {article50.map((c) => (
+        <article class="bg-ink-900 border border-ink-700 rounded p-4 text-sm">
+          <div class="flex items-center justify-between text-ink-50">
+            <span class="text-base">{c.clause}</span>
+            <span class="text-xs text-ink-500">{c.evidence.length} evidence fields</span>
+          </div>
+          <p class="text-ink-300 mt-2">{c.text}</p>
+          <ul class="mt-2 flex flex-wrap gap-2">
+            {c.evidence.map((e) => (
+              <li class="text-xs bg-ink-700 text-ink-50 px-2 py-0.5 rounded">{e}</li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </section>
+</Base>

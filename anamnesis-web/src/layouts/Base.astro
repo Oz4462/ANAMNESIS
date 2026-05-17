@@ -1,0 +1,44 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = "ANAMNESIS — internal", description = "Internal dashboard" } = Astro.props;
+---
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body class="h-full bg-ink-950 text-ink-100 font-mono antialiased">
+    <header class="border-b border-ink-700 px-6 py-4 flex items-center justify-between">
+      <a href="/" class="text-ink-50 text-lg tracking-tight">ANAMNESIS</a>
+      <nav class="flex gap-6 text-sm text-ink-300">
+        <a href="/tenants" class="hover:text-ink-50">Tenants</a>
+        <a href="/compliance" class="hover:text-ink-50">EU AI Act</a>
+        <a href="/receipts" class="hover:text-ink-50">Receipts</a>
+        <a href="/architecture" class="hover:text-ink-50">Architecture</a>
+      </nav>
+      <span class="text-xs text-ink-500 tracking-widest">INTERNAL · DO NOT SHARE</span>
+    </header>
+    <main class="px-6 py-10 max-w-6xl mx-auto">
+      <slot />
+    </main>
+    <footer class="mt-16 border-t border-ink-700 px-6 py-4 text-xs text-ink-500 text-center">
+      ANAMNESIS internal dashboard · all signing keys are issuer-side only · private build.
+    </footer>
+  </body>
+</html>
+<style is:global>
+  :root {
+    color-scheme: dark;
+  }
+  ::selection {
+    background: rgba(74, 124, 224, 0.45);
+  }
+</style>

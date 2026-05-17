@@ -1,0 +1,45 @@
+---
+import Base from "@/layouts/Base.astro";
+---
+<Base title="ANAMNESIS · receipts">
+  <h1 class="text-2xl text-ink-50 mb-4">Receipts</h1>
+  <p class="text-ink-300 text-sm max-w-3xl mb-8">
+    Verify a DSSE envelope locally without contacting the server. Paste the JSON
+    envelope and the issuer public key below.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <textarea id="envelope" rows="14" placeholder="paste signed envelope JSON" class="bg-ink-900 border border-ink-700 rounded p-3 text-xs text-ink-50 font-mono"></textarea>
+    <div class="flex flex-col gap-3">
+      <input id="pubkey" placeholder="issuer public key (base64)" class="bg-ink-900 border border-ink-700 rounded p-3 text-xs text-ink-50 font-mono" />
+      <input id="keyid" placeholder="key id" value="anamnesis-server-default" class="bg-ink-900 border border-ink-700 rounded p-3 text-xs text-ink-50 font-mono" />
+      <button id="verify-btn" class="bg-signal-calm hover:opacity-90 text-ink-50 rounded p-3 text-sm self-start px-6">Verify</button>
+      <pre id="output" class="bg-ink-950 border border-ink-700 rounded p-3 text-xs text-ink-100 min-h-[8rem] overflow-x-auto"></pre>
+    </div>
+  </div>
+
+  <script>
+    import { verifyEnvelope } from "@anamnesis/sdk";
+
+    const btn = document.querySelector("#verify-btn") as HTMLButtonElement | null;
+    if (btn) {
+      btn.addEventListener("click", async () => {
+        const env = (document.querySelector("#envelope") as HTMLTextAreaElement)?.value;
+        const pub = (document.querySelector("#pubkey") as HTMLInputElement)?.value;
+        const kid = (document.querySelector("#keyid") as HTMLInputElement)?.value;
+        const out = document.querySelector("#output") as HTMLPreElement;
+        try {
+          const parsed = JSON.parse(env);
+          const receipt = await verifyEnvelope(parsed, [{ keyid: kid, publicKeyB64: pub }]);
+          out.textContent = "VERIFIED\n" + JSON.stringify(receipt, null, 2);
+          out.classList.remove("text-signal-bad");
+          out.classList.add("text-signal-good");
+        } catch (e) {
+          out.textContent = "FAILED: " + (e as Error).message;
+          out.classList.remove("text-signal-good");
+          out.classList.add("text-signal-bad");
+        }
+      });
+    }
+  </script>
+</Base>

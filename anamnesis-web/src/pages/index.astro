@@ -1,0 +1,56 @@
+---
+import Base from "@/layouts/Base.astro";
+import StatCard from "@/components/StatCard.astro";
+---
+<Base title="ANAMNESIS · overview">
+  <section class="mb-12">
+    <h1 class="text-3xl text-ink-50 mb-2">ANAMNESIS</h1>
+    <p class="text-ink-300 max-w-3xl">
+      Verifiable reasoning memory for LLM agents. EU AI Act Article 15 + 50
+      signed-receipt audit layer with conformal trace reuse.
+    </p>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+    <StatCard label="SDK version" value="0.2.0" hint="anamnesis-py + anamnesis-server + anamnesis-ts" tone="calm" />
+    <StatCard label="Tests" value="124+" hint="Python + TypeScript, sync" tone="good" />
+    <StatCard label="Repo visibility" value="PRIVATE" hint="github.com/Oz4462/ANAMNESIS" tone="warn" />
+  </section>
+
+  <section class="mb-12">
+    <h2 class="text-xl text-ink-50 mb-4">Five-layer pipeline</h2>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
+      {[
+        ["CAPTURE", "Anthropic / OpenAI / DeepSeek / Gemini / Mistral"],
+        ["DISTILL", "Heuristic + Claude Haiku LLM"],
+        ["INDEX", "sqlite + fastembed / hash"],
+        ["RETRIEVE+COMPOSE", "Conformal-bounded k-NN"],
+        ["RECEIPT", "Ed25519 DSSE envelope"],
+      ].map(([title, desc]) => (
+        <div class="bg-ink-900 border border-ink-700 rounded p-4">
+          <div class="text-ink-50 text-base">{title}</div>
+          <div class="text-ink-300 mt-1">{desc}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <article class="bg-ink-900 border border-ink-700 rounded p-6">
+      <h3 class="text-lg text-ink-50 mb-2">Wedge</h3>
+      <ol class="list-decimal list-inside text-ink-300 space-y-2 text-sm">
+        <li>Forced demand: EU AI Act Article 15 + 50 enforcement, August 2026.</li>
+        <li>Multi-provider neutrality: one SDK, five reasoning vendors, one receipt format.</li>
+        <li>Pay-on-savings (SMB): zero customer risk, 15-20% gainshare.</li>
+      </ol>
+    </article>
+    <article class="bg-ink-900 border border-ink-700 rounded p-6">
+      <h3 class="text-lg text-ink-50 mb-2">Window</h3>
+      <p class="text-ink-300 text-sm">
+        6 to 12 months before either Databricks productises T3, foundation
+        labs bolt reasoning memory onto their caches, or
+        Langfuse/LangSmith extend observability into reuse.
+      </p>
+    </article>
+  </section>
+</Base>

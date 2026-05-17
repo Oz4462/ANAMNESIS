@@ -22,7 +22,7 @@ import json
 import sqlite3
 import threading
 import uuid
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -290,3 +290,61 @@ def hash_embedder(dim: int = 64) -> Embedder:
         return vec / n
 
     return embed
+
+
+def fastembed_embedder(
+    model_name: str = "BAAI/bge-small-en-v1.5",
+    cache_dir: str | Path | None = None,
+) -> Embedder:
+    """Real sentence-embedder powered by `fastembed` (ONNX runtime, no API keys).
+
+    Lazy-imports `fastembed` so the package stays an optional extra.
+    """
+    try:
+        from fastembed import TextEmbedding  # type: ignore
+    except ImportError as e:
+        raise ImportError(
+            "fastembed is not installed. Install with: "
+            "uv pip install 'anamnesis[embed]' or `uv pip install fastembed`."
+        ) from e
+
+    model = TextEmbedding(
+        model_name=model_name,
+        cache_dir=str(cache_dir) if cache_dir else None,
+    )
+
+    def embed(text: str) -> np.ndarray:
+        if not text:
+            text = " "
+        gen = model.embed([text])
+        vec = np.asarray(next(iter(gen)), dtype=np.float64)
+        n = np.linalg.norm(vec)
+        if n == 0.0:
+            vec[0] = 1.0
+            return vec
+        return vec / n
+
+    return embed
+
+
+def embedder_for(name: str | None = None, **kwargs) -> Embedder:
+    """Factory: pick an embedder by name.
+
+    Names:
+        "hash"      -> hash_embedder(**kwargs)
+        "fastembed" -> fastembed_embedder(**kwargs)
+        None        -> defaults to fastembed if available, else hash. kwargs
+                       are dropped in the default path because the two
+                       embedders share no parameters.
+    """
+    if name is None:
+        try:
+            return fastembed_embedder()
+        except ImportError:
+            return hash_embedder()
+    n = name.lower()
+    if n == "hash":
+        return hash_embedder(**kwargs)
+    if n == "fastembed":
+        return fastembed_embedder(**kwargs)
+    raise ValueError(f"unknown embedder {name!r}")

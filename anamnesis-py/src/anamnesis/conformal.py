@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from math import ceil
-from typing import Iterable
+from typing import Callable, Iterable
 
 import numpy as np
 
@@ -177,3 +177,71 @@ def one_minus_cosine(a: np.ndarray, b: np.ndarray) -> float:
     cos = float(np.dot(a64, b64) / (na * nb))
     cos = max(-1.0, min(1.0, cos))
     return 1.0 - cos
+
+
+@dataclass(slots=True)
+class ConditionalConformalCalibrator:
+    """Per-feature-bucket conformal calibration with localised quantiles.
+
+    The marginal-coverage guarantee from `ConformalCalibrator` averages over the
+    input distribution. When some buckets of queries have systematically higher
+    drift than others (e.g. legal vs maths) the marginal threshold is too loose
+    on hard buckets and too tight on easy ones.
+
+    This calibrator computes thresholds per bucket label. The user picks the
+    bucket label at query time (e.g. by hashing on a task tag or by routing on
+    intent embeddings). Under within-bucket exchangeability, conditional
+    coverage P[S_new <= tau | bucket=b] >= 1 - alpha holds per bucket.
+
+    Romano et al. (2019) and Gibbs et al. (2023) discuss more sophisticated
+    quantile-regression conformal variants; this class is the simplest
+    bucketed form, equivalent to Mondrian conformal with a public partition.
+    """
+
+    alpha: float = 0.1
+    max_window: int = 4096
+    min_calibration: int = 30
+    _per_bucket: dict[str, ConformalCalibrator] = field(default_factory=dict)
+    _bucket_for: Callable[[str], str] | None = None
+
+    def __post_init__(self) -> None:
+        if not 0.0 < self.alpha < 1.0:
+            raise ValueError(f"alpha must be in (0, 1), got {self.alpha}")
+
+    def set_bucket_fn(self, fn: Callable[[str], str]) -> None:
+        """Configure a callable that maps query text to a bucket label."""
+        self._bucket_for = fn
+
+    def bucket_of(self, query: str) -> str:
+        if self._bucket_for is None:
+            return "default"
+        return self._bucket_for(query)
+
+    def add(self, query: str, score: float) -> None:
+        bucket = self.bucket_of(query)
+        cal = self._per_bucket.get(bucket)
+        if cal is None:
+            cal = ConformalCalibrator(
+                alpha=self.alpha,
+                max_window=self.max_window,
+                min_calibration=self.min_calibration,
+            )
+            self._per_bucket[bucket] = cal
+        cal.add(score)
+
+    def threshold(self, query: str, alpha: float | None = None) -> ReuseBound:
+        bucket = self.bucket_of(query)
+        cal = self._per_bucket.get(bucket)
+        if cal is None or not cal.ready:
+            raise RuntimeError(
+                f"bucket {bucket!r} not ready: "
+                f"have {cal.n if cal else 0} scores, need {self.min_calibration}"
+            )
+        return cal.threshold(alpha=alpha)
+
+    def ready(self, query: str) -> bool:
+        cal = self._per_bucket.get(self.bucket_of(query))
+        return cal is not None and cal.ready
+
+    def buckets(self) -> list[str]:
+        return sorted(self._per_bucket)

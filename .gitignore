@@ -78,3 +78,6 @@ desktop.ini
 # Build artifacts
 *.whl
 node_modules/
+dist/
+.astro/
+.tsup/

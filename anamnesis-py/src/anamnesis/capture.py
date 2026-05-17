@@ -288,6 +288,132 @@ def _rough_token_count(text: str) -> int:
     return max(1, len(text) // 4)
 
 
+class GeminiCapture:
+    """Adapter for Google Gemini 2.5 thinking models.
+
+    Gemini exposes thinking summaries in two places depending on API version:
+
+    - `response.candidates[0].content.parts[]` may include a part with
+      `thought=True` whose `text` field is the thinking summary.
+    - `response.usage_metadata.thoughts_token_count` (sometimes
+      `reasoning_token_count`) reports billed thinking tokens.
+
+    We tolerate both the new and the legacy shape.
+    """
+
+    provider = "gemini"
+
+    def extract(self, response: Any, request_id: str | None = None) -> CapturedTrace:
+        model = (
+            _get_field(response, "model_version", default=None)
+            or _get_field(response, "model", default="unknown")
+        )
+        msg_id = _get_field(response, "response_id", default=None) or _get_field(
+            response, "id", default=None
+        )
+        rid = request_id or msg_id or _new_request_id()
+
+        thinking_parts: list[str] = []
+        answer_parts: list[str] = []
+        parts = _get_field(response, "candidates", 0, "content", "parts", default=None)
+        if parts is None:
+            parts = _get_field(response, "parts", default=[]) or []
+        for part in parts or []:
+            text = _get_field(part, "text", default="")
+            if not text:
+                continue
+            is_thought = bool(_get_field(part, "thought", default=False))
+            if is_thought:
+                thinking_parts.append(str(text))
+            else:
+                answer_parts.append(str(text))
+
+        if not answer_parts:
+            fallback = _get_field(response, "text", default="")
+            if fallback:
+                answer_parts.append(str(fallback))
+
+        usage = _get_field(response, "usage_metadata", default={}) or _get_field(
+            response, "usage", default={}
+        )
+        output_tokens = int(
+            _get_field(usage, "candidates_token_count", default=None)
+            or _get_field(usage, "output_tokens", default=0)
+            or 0
+        )
+        thinking_tokens = int(
+            _get_field(usage, "thoughts_token_count", default=None)
+            or _get_field(usage, "reasoning_token_count", default=None)
+            or _get_field(usage, "thinking_tokens", default=0)
+            or (_rough_token_count("\n".join(thinking_parts)) if thinking_parts else 0)
+        )
+
+        return CapturedTrace(
+            provider=self.provider,
+            model=str(model),
+            request_id=rid,
+            thinking_text="\n".join(thinking_parts).strip(),
+            answer_text="\n".join(answer_parts).strip(),
+            thinking_tokens=thinking_tokens,
+            output_tokens=output_tokens,
+            signature=None,
+            metadata={"finish_reason": _get_field(response, "candidates", 0, "finish_reason")},
+        )
+
+
+class MistralCapture:
+    """Adapter for Mistral / Magistral reasoning responses.
+
+    Magistral exposes thinking via two paths:
+    - inline `<think>...</think>` blocks in the assistant message (like DeepSeek-R1)
+    - `prefix` style where the first message turn is the thinking summary
+    """
+
+    provider = "mistral"
+
+    def extract(self, response: Any, request_id: str | None = None) -> CapturedTrace:
+        model = _get_field(response, "model", default="unknown")
+        msg_id = _get_field(response, "id")
+        rid = request_id or msg_id or _new_request_id()
+
+        content = (
+            _get_field(response, "choices", 0, "message", "content", default=None)
+            or _get_field(response, "content", default=None)
+            or ""
+        )
+        content = str(content)
+
+        match = THINK_TAG_RE.search(content)
+        thinking_text = match.group(1).strip() if match else ""
+        answer_text = THINK_TAG_RE.sub("", content).strip()
+
+        if not thinking_text:
+            thinking_text = str(
+                _get_field(response, "choices", 0, "message", "reasoning", default="")
+                or _get_field(response, "reasoning", default="")
+            ).strip()
+
+        usage = _get_field(response, "usage", default={})
+        output_tokens = int(_get_field(usage, "completion_tokens", default=0) or 0)
+        thinking_tokens = int(
+            _get_field(usage, "reasoning_tokens", default=None)
+            or _get_field(usage, "thinking_tokens", default=None)
+            or (_rough_token_count(thinking_text) if thinking_text else 0)
+        )
+
+        return CapturedTrace(
+            provider=self.provider,
+            model=str(model),
+            request_id=rid,
+            thinking_text=thinking_text,
+            answer_text=answer_text,
+            thinking_tokens=thinking_tokens,
+            output_tokens=output_tokens,
+            signature=None,
+            metadata={"finish_reason": _get_field(response, "choices", 0, "finish_reason")},
+        )
+
+
 def adapter_for(provider: str) -> CaptureAdapter:
     p = provider.lower()
     if p == "anthropic":
@@ -296,4 +422,8 @@ def adapter_for(provider: str) -> CaptureAdapter:
         return OpenAICapture()
     if p == "deepseek":
         return DeepSeekCapture()
+    if p in {"gemini", "google", "vertex"}:
+        return GeminiCapture()
+    if p in {"mistral", "magistral"}:
+        return MistralCapture()
     raise ValueError(f"unsupported provider {provider!r}")

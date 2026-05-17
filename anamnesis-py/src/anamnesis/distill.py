@@ -18,8 +18,9 @@ the same template can be A/B-tested and version-pinned in receipts.
 from __future__ import annotations
 
 import json
+import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Iterable, Protocol
 
 from anamnesis.capture import CapturedTrace
@@ -160,3 +161,89 @@ def distill_traces(
     for trace in traces:
         out.extend(distiller.distill(trace))
     return out
+
+
+@dataclass(slots=True)
+class AnthropicHaikuDistiller:
+    """Production LLM-distiller backed by Anthropic Claude Haiku.
+
+    Lazy-imports the anthropic SDK. Uses ANTHROPIC_API_KEY from the env unless
+    a key is passed in. On any vendor error or empty response we fall back
+    to the HeuristicDistiller so the pipeline never silently emits zero steps.
+    """
+
+    model: str = "claude-3-5-haiku-latest"
+    max_tokens: int = 4096
+    api_key: str | None = None
+    name: str = "anthropic-haiku-distill-v1"
+    prompt_version: str = DISTILL_PROMPT_VERSION
+    fallback: HeuristicDistiller = field(default_factory=HeuristicDistiller)
+    _client: object | None = None
+
+    def _get_client(self) -> object:
+        if self._client is not None:
+            return self._client
+        try:
+            from anthropic import Anthropic  # type: ignore
+        except ImportError as e:
+            raise ImportError(
+                "anthropic SDK is not installed. Add to your project: "
+                "uv pip install anthropic"
+            ) from e
+        key = self.api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not key:
+            raise RuntimeError(
+                "AnthropicHaikuDistiller requires ANTHROPIC_API_KEY or api_key kwarg."
+            )
+        self._client = Anthropic(api_key=key)
+        return self._client
+
+    def distill(self, trace: CapturedTrace) -> list[ReasoningStep]:
+        if not trace.thinking_text.strip():
+            return []
+        prompt = render_distill_prompt(trace.thinking_text)
+        try:
+            client = self._get_client()
+            resp = client.messages.create(  # type: ignore[attr-defined]
+                model=self.model,
+                max_tokens=self.max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            raw = "".join(
+                getattr(block, "text", "") for block in getattr(resp, "content", [])
+            )
+        except Exception:
+            return self.fallback.distill(trace)
+
+        items = _parse_distilled_json(raw)
+        steps = [
+            ReasoningStep.make(
+                capture_id=trace.request_id,
+                text=str(item.get("text", "")),
+                intent=str(item.get("intent", "")),
+                preconditions=tuple(str(x) for x in item.get("preconditions", [])),
+                produces=tuple(str(x) for x in item.get("produces", [])),
+                tags=tuple(str(x) for x in item.get("tags", [])),
+            )
+            for item in items
+            if str(item.get("text", "")).strip()
+        ]
+        if not steps:
+            return self.fallback.distill(trace)
+        return steps
+
+
+def distiller_for(name: str | None = None, **kwargs) -> Distiller:
+    """Factory: pick a distiller by name.
+
+    Names:
+        "heuristic"        -> HeuristicDistiller(**kwargs)
+        "anthropic-haiku"  -> AnthropicHaikuDistiller(**kwargs)
+        None               -> heuristic
+    """
+    if name is None or name.lower() == "heuristic":
+        return HeuristicDistiller(**kwargs)
+    n = name.lower()
+    if n in {"anthropic-haiku", "haiku", "claude-haiku"}:
+        return AnthropicHaikuDistiller(**kwargs)
+    raise ValueError(f"unknown distiller {name!r}")

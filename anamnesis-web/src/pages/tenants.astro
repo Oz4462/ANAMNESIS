@@ -1,0 +1,24 @@
+---
+import Base from "@/layouts/Base.astro";
+---
+<Base title="ANAMNESIS · tenants">
+  <h1 class="text-2xl text-ink-50 mb-4">Tenants</h1>
+  <p class="text-ink-300 text-sm max-w-3xl mb-8">
+    Per-tenant calibrators, capture counts, and signed-receipt issuance. Wired
+    to <code class="text-ink-50">GET /v1/calibration/{`{tenant}`}</code> on the live
+    server. Populate at runtime via the JS in <code class="text-ink-50">src/scripts/tenants.client.ts</code>.
+  </p>
+
+  <div class="bg-ink-900 border border-ink-700 rounded p-6">
+    <p class="text-ink-500 italic text-sm">
+      No live data wired yet in the static-build preview. Use the SDK or curl:
+    </p>
+    <pre class="mt-4 bg-ink-950 text-ink-200 text-xs p-4 rounded overflow-x-auto">
+{`# from the workspace root
+uv run uvicorn anamnesis_server.main:app --reload --port 8000
+
+curl http://localhost:8000/v1/calibration/demo-tenant
+# {"tenant_id":"demo-tenant","n_calibration":0,"ready":false,"alpha":0.1}`}
+    </pre>
+  </div>
+</Base>
