@@ -111,7 +111,10 @@ class Receipt:
 
     def to_payload_bytes(self) -> bytes:
         return json.dumps(
-            self.to_payload_dict(), sort_keys=True, separators=(",", ":")
+            self.to_payload_dict(),
+            sort_keys=True,
+            separators=(",", ":"),
+            allow_nan=False,
         ).encode("utf-8")
 
     def payload_hash(self) -> str:

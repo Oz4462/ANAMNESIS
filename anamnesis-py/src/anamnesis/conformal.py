@@ -167,9 +167,16 @@ class MondrianCalibrator:
 
 
 def one_minus_cosine(a: np.ndarray, b: np.ndarray) -> float:
-    """Default non-conformity score: 1 - cosine similarity of two embeddings."""
+    """Default non-conformity score: 1 - cosine similarity of two embeddings.
+
+    NaN-in-NaN-out: if either input contains NaN, the result is NaN rather
+    than a silently clamped 0.0. Callers must check `math.isnan` before
+    feeding the score into a calibrator (which rejects NaN explicitly).
+    """
     a64 = np.asarray(a, dtype=np.float64)
     b64 = np.asarray(b, dtype=np.float64)
+    if not (np.isfinite(a64).all() and np.isfinite(b64).all()):
+        return float("nan")
     na = np.linalg.norm(a64)
     nb = np.linalg.norm(b64)
     if na == 0.0 or nb == 0.0:

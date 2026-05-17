@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.2.5] — 2026-05-17
+
+### Fixed (real bugs discovered by the new tests)
+- `one_minus_cosine` silently returned 0.0 when an embedding contained NaN
+  (clamp-after-dot-product hid the corruption). Now returns NaN explicitly
+  so the calibrator's `add()` rejects it instead of poisoning the threshold.
+- `Receipt.to_payload_bytes` emitted literal `NaN` / `Infinity` tokens
+  because `json.dumps` defaults to non-RFC-8259 behaviour. The serialiser
+  now uses `allow_nan=False`, so a NaN bound or an Infinity cost raises
+  rather than producing an envelope strict verifiers would reject.
+
+### Added — Third hard-validation pass (+69 tests, 232 Py + 9 TS = 241 total)
+- `test_capture_robustness.py` — 30 cases × 5 adapters: empty dict, None
+  content, missing usage, wrong types, unknown block types, multiple
+  `<think>` blocks, pydantic-like attribute objects, request-id override.
+- `test_nan_infinity.py` — calibrator rejects NaN/+inf/-inf; receipt
+  serialisation rejects NaN in bound and Infinity in cost; zero and
+  negative scores are still legitimate.
+- `test_math_edges.py` — 13 boundary tests: exact min_calibration,
+  one-below-min, all-identical scores, alpha near 0 and near 1,
+  window_max==min, orthogonal/identical/antipodal embeddings, FP
+  precision, Mondrian per-group window, conditional lambda bucketer,
+  exact ceil-quantile formula at n=10/alpha=0.1.
+- `test_compose_edges.py` — 11 cases: k=1, k>store, empty store,
+  Unicode/emoji query, 10K-char query, abstain-when-cold, explicit
+  alpha override, record_outcome accumulation, abstain-with-bound,
+  step-block-contains-ids, k<0 raises.
+- `test_capture_fuzz.py` — 5 adapters × 200 Hypothesis examples
+  (1000 random nested dicts) all return a CapturedTrace without crashing;
+  content_hash always sha256-prefixed.
+
 ## [0.2.4] — 2026-05-17
 
 ### Fixed
