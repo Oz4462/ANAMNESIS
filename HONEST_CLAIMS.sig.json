@@ -4,6 +4,6 @@
   "digest_sha256_hex": "288a662bf897fb2fe9c8695d5002dd1fc779c6d334f908a40cf4214ee0356b46",
   "public_key_fingerprint_sha256_16": "6947c3c0f3682af8",
   "signature_b64": "FhBhFgI0o79+DCiZecrjy+cK432W/lYP+sN0RK0S7np+n6Hf03YwOsjMQLcpteFkOEYqudTFsW3ccTFDKpG0BA==",
-  "signed_at": "2026-05-20T11:19:13.846726+00:00",
+  "signed_at": "2026-05-20T11:19:51.848288+00:00",
   "spec": "VCOS/0.1"
 }
