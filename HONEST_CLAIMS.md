@@ -44,7 +44,7 @@ Evidence: `anamnesis-py/tests/test_conformal.py::test_finite_sample_validity_hol
 Type: technical
 **Status:** ✅ CONFIRMED (capture.py adapter pattern + Protocol)
 Evidence:
-- `anamnesis-py/tests/test_capture_anthropic.py::test_extended_thinking_captured` [TBD-pin]
+- `anamnesis-py/tests/test_capture.py` + `test_capture_more_providers.py` cover 4-provider capture
 - `anamnesis-py/tests/test_capture_openai.py::test_o3_reasoning_tokens_captured`
 - `anamnesis-py/tests/test_capture_deepseek.py::test_r1_think_tags_extracted`
 - `anamnesis-py/tests/test_capture_gemini.py::test_thinking_signature_captured`
@@ -53,7 +53,7 @@ Evidence:
 
 Type: regulatory + technical
 **Status:** ✅ CONFIRMED (`anamnesis-server/src/anamnesis_server/eu_compliance.py`)
-Evidence: `anamnesis-server/tests/test_eu_compliance.py::test_article_15_mapping_complete` [TBD-pin]
+Evidence: `anamnesis-server/src/anamnesis_server/eu_compliance.py` (ArticleClause dataclasses for Art 15+50). Test-pin: TBD.
 
 ### CLAIM: Savings-Calculator (v0.2.8 CFO-Closer)
 

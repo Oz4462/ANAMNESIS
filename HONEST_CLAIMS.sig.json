@@ -1,9 +1,9 @@
 {
   "algorithm": "Ed25519",
   "claims_file": "HONEST_CLAIMS.md",
-  "digest_sha256_hex": "62b1c837a6cf166d8c3c9c36f366b7d645163c1fa7ea1fbe0936ba52660b1cd6",
+  "digest_sha256_hex": "288a662bf897fb2fe9c8695d5002dd1fc779c6d334f908a40cf4214ee0356b46",
   "public_key_fingerprint_sha256_16": "6947c3c0f3682af8",
-  "signature_b64": "pPai9v/RiQUaHyuQwq40x47CwcDB33BkfLPepVHQ3TtM0WqsGule5BAxZKv9WjcSFCmHADRKcqqOsGXRWwyPDw==",
-  "signed_at": "2026-05-20T11:18:29.036572+00:00",
+  "signature_b64": "FhBhFgI0o79+DCiZecrjy+cK432W/lYP+sN0RK0S7np+n6Hf03YwOsjMQLcpteFkOEYqudTFsW3ccTFDKpG0BA==",
+  "signed_at": "2026-05-20T11:19:13.846726+00:00",
   "spec": "VCOS/0.1"
 }
