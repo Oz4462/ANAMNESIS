@@ -29,7 +29,7 @@ Pre-alpha. Not safe for production. Not safe for public release.
 
 ```bash
 uv sync --all-packages --extra dev
-uv run pytest                                # 84 tests
+uv run pytest                                # 373 tests (V0.2.8 baseline: 351 Py + 22 TS)
 uv run python examples/01_basic_capture.py
 uv run python examples/02_reuse_demo.py
 uv run python examples/03_compliance_audit.py
