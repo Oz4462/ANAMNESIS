@@ -17,7 +17,7 @@
 | Commit-msg v0.2.8 | "351 Python + 22 TS = **373 total**" | 17.05 latest |
 | Live-Grep | 37 files, ~332 funcs | minus TS-Tests |
 | Plus `test_ann.py` untracked | +5-15 (estimate) | new |
-| **Expected pytest** | **[TBD ≥ 351 Py]** | post User-Run |
+| **Actual pytest anamnesis-py (2026-05-20 13:23)** | **306 passed + 1 skipped in 44.41s** | -45 vs commit-msg (test_ann.py stashed pre-truth-reset) |
 
 **Pre-Action für User: README.md Line ~XX "84 tests" → echter pytest-Output PATCHED.**
 
