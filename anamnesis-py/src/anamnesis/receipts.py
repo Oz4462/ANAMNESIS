@@ -94,9 +94,14 @@ class Receipt:
     eu_ai_act_claims: dict[str, bool] = field(
         default_factory=lambda: {"article_15": True, "article_50": True}
     )
+    # F19 Key-Rotation: monotonic generation counter for the issuing key.
+    # Optional for backward compatibility — legacy receipts without this field
+    # continue to verify. See docs/specs/2026-05-22-key-rotation-interface.md
+    # in TRUST-OS.
+    key_generation: int | None = None
 
     def to_payload_dict(self) -> dict[str, Any]:
-        return {
+        payload: dict[str, Any] = {
             "schema_version": self.schema_version,
             "receipt_id": self.receipt_id,
             "issued_at": self.issued_at,
@@ -110,6 +115,9 @@ class Receipt:
             "cost_saved_tokens": self.cost_saved_tokens,
             "eu_ai_act_claims": dict(self.eu_ai_act_claims),
         }
+        if self.key_generation is not None:
+            payload["key_generation"] = int(self.key_generation)
+        return payload
 
     def to_payload_bytes(self) -> bytes:
         return json.dumps(
@@ -250,6 +258,7 @@ class ReceiptVerifier:
 def _receipt_from_payload(data: dict[str, Any]) -> Receipt:
     model = ModelRef(**data["model"])
     bound = BoundRef(**data["bound"])
+    key_generation = data.get("key_generation")
     return Receipt(
         tenant_id=data["tenant_id"],
         request_id=data["request_id"],
@@ -263,4 +272,5 @@ def _receipt_from_payload(data: dict[str, Any]) -> Receipt:
         receipt_id=data["receipt_id"],
         schema_version=data.get("schema_version", RECEIPT_SCHEMA_VERSION),
         eu_ai_act_claims=dict(data.get("eu_ai_act_claims", {"article_15": True, "article_50": True})),
+        key_generation=int(key_generation) if key_generation is not None else None,
     )
