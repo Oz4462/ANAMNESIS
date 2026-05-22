@@ -121,10 +121,10 @@ def test_any_single_byte_flip_of_signature_is_caught(receipt: Receipt, flip_inde
 @given(receipt=receipts())
 def test_canonical_payload_is_compact_and_sorted(receipt: Receipt):
     raw = receipt.to_payload_bytes()
-    assert b": " not in raw
-    assert b", " not in raw
     assert b"\n" not in raw
     parsed = json.loads(raw)
+    canonical_check = json.dumps(parsed, sort_keys=True, separators=(",", ":")).encode()
+    assert raw == canonical_check
     keys = list(parsed.keys())
     assert keys == sorted(keys)
 
