@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Ozan Küsmez
 """Split-conformal prediction for reasoning-trace reuse.
 
 References:

@@ -1,6 +1,6 @@
 # ANAMNESIS
 
-Internal project. Not for public distribution.
+Pre-alpha. Licensed under Apache-2.0 as part of the TRUST-OS unified-license architecture.
 
 ## What this is
 
@@ -23,7 +23,7 @@ examples/             Notebooks and scripts demonstrating reuse + receipts
 
 ## Status
 
-Pre-alpha. Not safe for production. Not safe for public release.
+Pre-alpha. Not safe for production. License-wise public-distribution-ready under Apache-2.0.
 
 ## Quickstart (internal)
 
@@ -38,4 +38,6 @@ uv run uvicorn anamnesis_server.main:app --reload
 
 ## License
 
-All Rights Reserved. See LICENSE.
+Apache License 2.0. See [LICENSE](LICENSE).
+
+Re-licensed from All-Rights-Reserved on 2026-05-22 as part of the TRUST-OS unified-license architecture. Copyright 2026 Ozan Küsmez.

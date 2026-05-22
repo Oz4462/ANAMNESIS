@@ -1,14 +1,28 @@
-Copyright (c) 2026 Ozan Küsmez. All Rights Reserved.
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
 
-This software and associated documentation files (the "Software") are the
-proprietary and confidential information of the copyright holder.
+   Copyright 2026 Ozan Küsmez
 
-No part of the Software may be copied, distributed, modified, merged,
-published, sublicensed, sold, or used in any form or by any means without
-the prior written permission of the copyright holder.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE.
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+   Full license text: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+   ---
+
+   This project (ANAMNESIS) is the sole work of Ozan Küsmez.
+   Re-licensed from All-Rights-Reserved (Pre-Alpha) to Apache License 2.0
+   on 2026-05-22 as part of the TRUST-OS unified-license architecture
+   (VCOS, VERIDEX, ANAMNESIS, Aegis-Veto, AGORA — all Apache-2.0).
+   Prior license status preserved at LICENSE.all-rights-reserved.backup
+   for historical reference.

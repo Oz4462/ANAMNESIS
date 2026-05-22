@@ -5,7 +5,7 @@ description = "FastAPI backend for ANAMNESIS reasoning-trace storage, conformal 
 readme = "../README.md"
 requires-python = ">=3.11"
 authors = [{name = "Ozan Küsmez", email = "ozanks20@gmail.com"}]
-license = {text = "Proprietary"}
+license = "Apache-2.0"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",

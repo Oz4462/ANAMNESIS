@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Ozan Küsmez
 """Signed reasoning-trace receipts for EU AI Act Article 15 + 50 compliance.
 
 We follow the Dead Simple Signing Envelope (DSSE) specification from in-toto:
