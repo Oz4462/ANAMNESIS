@@ -11,7 +11,13 @@ dependencies = [
     "httpx>=0.27",
     "pynacl>=1.5",
     "numpy>=1.26",
-    "chromadb>=0.5",
+    # chromadb removed 2026-05-22: CVE-2026-45829 RCE in 1.5.9 (no patch).
+    # The TraceStore in src/anamnesis/storage.py uses sqlite + numpy in-process,
+    # so chromadb was a dead carry-over dep with zero source imports.
+    # If a server-mode vector backend is reintroduced, prefer qdrant-client
+    # (Apache-2.0) or lancedb (Apache-2.0) under a feature-flag, not the original
+    # chromadb. See docs/security/2026-05-22-chromadb-cve-mitigation-applied.md
+    # in the TRUST-OS repo for the full audit trail.
     "anthropic>=0.40",
     "openai>=1.50",
     "click>=8.1",
