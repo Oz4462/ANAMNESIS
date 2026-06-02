@@ -8,6 +8,10 @@ authors = [{name = "Ozan Küsmez", email = "ozanks20@gmail.com"}]
 license = "Apache-2.0"
 dependencies = [
     "fastapi>=0.115",
+    # 2026-06-02 live-OSV-audit: starlette>=1.0.1 patches PYSEC-2026-161
+    # (Host-header path-injection -> potential auth bypass). FastAPI pulls it
+    # transitively; this floor forces the patched release.
+    "starlette>=1.0.1",
     "uvicorn[standard]>=0.30",
     # 2026-05-22 floor-harmonization: pydantic bumped 2.7 -> 2.9 (cross-repo
     # harmonized floor; FastAPI 0.135.x lower bound).
