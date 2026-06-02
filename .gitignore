@@ -87,3 +87,6 @@ _persist_smoke/
 bench_persist.db
 .playwright-mcp/
 tools/keys/honesty_priv.pem
+
+# machine-local (cleanup 2026-06-02)
+.claude/

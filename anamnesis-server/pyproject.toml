@@ -9,7 +9,9 @@ license = "Apache-2.0"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
-    "pydantic>=2.7",
+    # 2026-05-22 floor-harmonization: pydantic bumped 2.7 -> 2.9 (cross-repo
+    # harmonized floor; FastAPI 0.135.x lower bound).
+    "pydantic>=2.9",
     "pynacl>=1.5",
     "numpy>=1.26",
     # chromadb removed 2026-05-22: CVE-2026-45829 RCE in 1.5.9 (no patch).
