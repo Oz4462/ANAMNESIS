@@ -1,6 +1,22 @@
-# ANAMNESIS
+<div align="center">
 
-Pre-alpha. Licensed under Apache-2.0 as part of the TRUST-OS unified-license architecture.
+# 🧠 ANAMNESIS
+
+### Verifiable reasoning-trace memory for LLM agents
+
+**Capture thinking-tokens → distill to atomic steps → reuse via conformal-bounded retrieval → an Ed25519-signed receipt for every reuse.**
+
+[![License](https://img.shields.io/badge/license-Apache--2.0-3da639?style=flat-square)](#license)
+[![Tests](https://img.shields.io/badge/tests-367_passing-2ea44f?style=flat-square)](#status)
+[![Python](https://img.shields.io/badge/python-3.11+-3776ab?style=flat-square&logo=python&logoColor=white)](#quickstart)
+[![Receipts](https://img.shields.io/badge/receipts-Ed25519_DSSE-8a2be2?style=flat-square)](#what-this-is)
+[![EU AI Act](https://img.shields.io/badge/maps_to-EU_AI_Act_Art._15_%26_50-1f5fbf?style=flat-square)](#what-this-is)
+
+[What](#what-this-is) · [Layout](#layout) · [Quickstart](#quickstart) · [Status](#status)
+
+</div>
+
+---
 
 ## What this is
 
@@ -25,7 +41,7 @@ examples/             Notebooks and scripts demonstrating reuse + receipts
 
 Pre-alpha. Not safe for production. License-wise public-distribution-ready under Apache-2.0.
 
-## Quickstart (internal)
+## Quickstart
 
 ```bash
 uv sync --all-packages --extra dev
@@ -41,3 +57,7 @@ uv run uvicorn anamnesis_server.main:app --reload
 Apache License 2.0. See [LICENSE](LICENSE).
 
 Re-licensed from All-Rights-Reserved on 2026-05-22 as part of the TRUST-OS unified-license architecture. Copyright 2026 Ozan Küsmez.
+
+## 📬 Contact
+
+Questions, collaboration, or inquiries: **Ozan Küsmez** — <ozan.kuesmez@outlook.com>

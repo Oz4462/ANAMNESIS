@@ -28,7 +28,7 @@ Unacceptable behavior:
 
 ## Enforcement
 
-Report violations to **ozanks20@gmail.com**. Reports are reviewed promptly
+Report violations to **ozan.kuesmez@outlook.com**. Reports are reviewed promptly
 and confidentially. Community leaders may take any action deemed
 appropriate including warnings, temporary bans, or permanent bans.
 

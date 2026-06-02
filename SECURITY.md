@@ -26,7 +26,7 @@ or conformal bounds is the principal threat-class** this policy covers.
 
 ## Reporting a Vulnerability
 
-Email **ozanks20@gmail.com** with subject `[SECURITY] ANAMNESIS`.
+Email **ozan.kuesmez@outlook.com** with subject `[SECURITY] ANAMNESIS`.
 
 Do **not** open a public GitHub issue, public discussion thread, or
 social-media post before the embargo window has elapsed.
