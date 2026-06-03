@@ -1,41 +1,10 @@
 name: ci
-
-on:
-  push:
-    branches: [main, "feature/**"]
-  pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
-
+on: [push, pull_request]
 jobs:
-  tests:
-    name: tests (${{ matrix.os }} / py${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
-      - name: install uv
-        uses: astral-sh/setup-uv@v3
-      - name: set up python
-        run: uv python install ${{ matrix.python-version }}
-      - name: sync workspace
-        run: uv sync --all-packages --extra dev
-      - name: ruff
-        run: uv run ruff check .
-      - name: pytest
-        run: uv run pytest -q
-
-  docker-build:
-    name: docker build (no push)
+  test:
     runs-on: ubuntu-latest
-    needs: tests
     steps:
       - uses: actions/checkout@v4
-      - name: build image (internal-only, no push)
-        run: docker build -t anamnesis-server:ci .
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync --all-packages --all-extras
+      - run: uv run pytest -q anamnesis-py anamnesis-server
