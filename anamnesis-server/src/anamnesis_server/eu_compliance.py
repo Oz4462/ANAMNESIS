@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Mapping from EU AI Act Articles 15 + 50 requirements to receipt fields.
 
 This module is the audit-grade glue that lets a notified body or a customer

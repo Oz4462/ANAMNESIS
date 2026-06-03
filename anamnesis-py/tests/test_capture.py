@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for multi-provider capture adapters using mock SDK response shapes."""
 
 from __future__ import annotations

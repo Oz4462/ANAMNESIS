@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """1000 concurrent tenants stress against a running server (port 8768).
 
 Each tenant does capture + 10 calibration scores + reuse. We cap concurrency

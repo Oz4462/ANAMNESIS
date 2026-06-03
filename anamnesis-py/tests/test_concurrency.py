@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Concurrency torture tests against shared in-process state.
 
 These mirror what happens when one tenant pushes many parallel HTTP requests

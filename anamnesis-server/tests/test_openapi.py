@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Verify FastAPI generates a valid OpenAPI 3.x spec.
 
 A spec that doesn't validate is a spec that won't work with auditor tooling

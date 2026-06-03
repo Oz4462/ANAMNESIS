@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Conformal + cosine math edge cases.
 
 These tests cover the values most likely to break in production:

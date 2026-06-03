@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """FastAPI app for ANAMNESIS — multi-tenant reasoning-trace memory.
 
 Endpoints:

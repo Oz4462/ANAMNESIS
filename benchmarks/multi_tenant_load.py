@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Multi-tenant concurrent load test against a running ANAMNESIS server.
 
 Spawns N tenants in parallel, each running:

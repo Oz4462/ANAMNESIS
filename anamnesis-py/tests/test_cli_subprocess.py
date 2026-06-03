@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Exercise the CLI as an actual installed binary.
 
 The Click `CliRunner` covers in-process behaviour, but it bypasses the

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Pathological inputs that test the resource ceilings of the receipt
 and storage layers. These run slower than typical unit tests; they exist
 to catch O(n^2) regressions and "I never thought anyone would do that"

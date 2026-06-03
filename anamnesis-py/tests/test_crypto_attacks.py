@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Hard cryptographic attack surface against the receipt subsystem.
 
 Every test below codifies a known pattern that auditors and pen-testers

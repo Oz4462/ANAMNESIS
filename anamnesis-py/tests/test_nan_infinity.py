@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """NaN / Infinity must never pass silently into calibrators or receipts.
 
 JSON technically allows NaN/Infinity via non-standard extensions, and

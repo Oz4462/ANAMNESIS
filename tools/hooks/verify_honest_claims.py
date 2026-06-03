@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Pre-commit / CI hook: verify HONEST_CLAIMS.sig against HONEST_CLAIMS.md.
 
 VCOS-Spec §5 normative.

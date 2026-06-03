@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for the savings calculator.
 
 The numbers it reports become the basis of any POC conversation, so the

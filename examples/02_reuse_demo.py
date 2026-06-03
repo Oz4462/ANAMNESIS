@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """End-to-end reuse demo: warm a calibrator, retrieve, compose, sign, verify.
 
 Run with: uv run python examples/02_reuse_demo.py

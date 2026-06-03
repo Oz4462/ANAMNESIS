@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Generate a synthetic workload and compute the savings report.
 
 Run with: uv run python examples/04_savings_demo.py

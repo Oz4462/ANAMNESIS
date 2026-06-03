@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Verify the server keeps traces and the signing key across a hard restart.
 
 Procedure:

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for the embedder factory and optional fastembed integration."""
 
 from __future__ import annotations

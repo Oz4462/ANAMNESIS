@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """End-to-end tests for the ANAMNESIS FastAPI app."""
 
 from __future__ import annotations

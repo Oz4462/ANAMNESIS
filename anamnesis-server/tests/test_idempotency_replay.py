@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Idempotency + replay-attack tests.
 
 The current MVP does NOT enforce idempotency on /v1/captures: re-posting

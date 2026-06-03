@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Time + clock edge cases.
 
 Receipts carry an `issued_at` field that auditors will sanity-check.

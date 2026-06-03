@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Empirical conformal-coverage on shapes other than uniform.
 
 The theoretical guarantee (Vovk/Shafer/Angelopoulos-Bates) says

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """HTTP-layer tests: headers, content-types, error paths."""
 
 from __future__ import annotations

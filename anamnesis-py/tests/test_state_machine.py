@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Stateful property test for the entire pipeline.
 
 Hypothesis explores random sequences of:

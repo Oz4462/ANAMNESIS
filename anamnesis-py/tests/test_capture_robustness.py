@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Capture-adapter robustness: malformed provider responses.
 
 Real provider SDKs occasionally return shapes we didn't see in tests.

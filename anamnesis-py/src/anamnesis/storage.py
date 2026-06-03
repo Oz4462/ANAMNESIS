@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Local storage for captured traces and distilled reasoning steps.
 
 The MVP keeps everything on the same machine to remove cloud-account friction:

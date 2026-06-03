@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for split-conformal calibration.
 
 The key correctness property is marginal coverage:

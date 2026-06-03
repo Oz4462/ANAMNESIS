@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Heavy-stress benchmark: 100K steps, latency degradation curve.
 
 Compared to bench_10k.py this asks: does our naive in-memory numpy matrix

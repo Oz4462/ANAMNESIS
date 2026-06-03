@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Splice accepted reasoning steps into a new prompt.
 
 The composer turns a RetrievalResult into a system-prompt fragment that

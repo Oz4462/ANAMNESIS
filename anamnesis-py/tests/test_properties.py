@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Property-based tests via Hypothesis.
 
 We assert invariants instead of specific examples:

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Edge cases for retrieve + compose: k bounds, empty store, abstain logic, big queries."""
 
 from __future__ import annotations

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Hypothesis fuzz: capture adapters must never crash on arbitrary nested input.
 
 We generate deeply random dict-of-dict-of-list-of-strings structures and feed

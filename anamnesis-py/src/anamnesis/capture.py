@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Multi-provider capture of reasoning-model thinking traces.
 
 Today's reasoning APIs each expose their internal chain-of-thought differently:

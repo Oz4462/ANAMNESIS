@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Receipt size + payload stress tests.
 
 Find where the DSSE envelope / Ed25519 signature stops scaling. A receipt

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Token-savings calculator for a prospect's own reasoning workload.
 
 This is the closer for a sales conversation: paste a CSV/JSONL of past

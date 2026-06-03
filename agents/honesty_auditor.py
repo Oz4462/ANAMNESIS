@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Portable VCOS-conformant Honesty-Auditor for HONEST_CLAIMS.md.
 
 Adapted from VERIDEX/agents/honesty_auditor.py (440 LoC).

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Verify the in-memory vector index is rebuilt from sqlite on init.
 
 This was a known limitation in v0.2.2: traces persisted to disk survived

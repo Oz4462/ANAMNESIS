@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Pydantic request/response models for the ANAMNESIS HTTP API."""
 
 from __future__ import annotations

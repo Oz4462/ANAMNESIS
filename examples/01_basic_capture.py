@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Capture a synthetic Anthropic-shaped response and verify the signed receipt.
 
 Run with: uv run python examples/01_basic_capture.py

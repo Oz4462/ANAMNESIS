@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for conditional (per-bucket) conformal calibration."""
 
 from __future__ import annotations

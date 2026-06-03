@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Portable VCOS-conformant Sign/Verify for HONEST_CLAIMS.md.
 
 Adapted from VERIDEX/agents/sign_claims.py (179 LoC).

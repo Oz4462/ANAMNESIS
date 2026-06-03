@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Determinism: identical inputs + identical key material must produce
 identical bytes, signatures, and hashes. This is critical for any auditor
 who wants to recompute a receipt and compare byte-for-byte.

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Conformal-bounded retrieval of reasoning steps.
 
 Given a new query, we ask the TraceStore for its k-nearest reasoning steps

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Cross-instance TraceStore tests: two stores on the same db file, dimension
 mismatches, sqlite journal modes, and the kind of mistakes a deployer
 will eventually make.

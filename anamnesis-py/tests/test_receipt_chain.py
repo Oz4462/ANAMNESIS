@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Receipt evidence chains: a sequence of receipts forms a verifiable
 audit trail for a user session.
 

@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Encoding attacks against the serialisation + transport layer.
 
 These are the byte-level games attackers play to bypass naive parsers:

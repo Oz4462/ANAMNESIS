@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for Ed25519 DSSE receipt signing and verification."""
 
 from __future__ import annotations

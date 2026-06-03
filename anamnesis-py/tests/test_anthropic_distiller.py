@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for the production Anthropic-Haiku distiller (no real API calls).
 
 The Anthropic SDK is mocked so the tests run without network access.

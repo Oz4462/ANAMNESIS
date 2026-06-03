@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Distill captured reasoning traces into atomic, retrievable steps.
 
 Distillation is the bridge from a raw stream of thinking-tokens to a set of

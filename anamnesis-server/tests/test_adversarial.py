@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Adversarial input tests against the FastAPI app.
 
 These are the inputs a paying customer (or pen-tester) will eventually fire

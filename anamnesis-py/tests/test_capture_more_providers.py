@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Tests for the Gemini + Mistral capture adapters."""
 
 from __future__ import annotations

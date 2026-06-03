@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Storage corruption resilience tests.
 
 What happens when the sqlite file is truncated, the disk is full, the

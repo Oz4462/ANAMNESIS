@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Ozan Küsmez. Licensed under Apache-2.0.
 """Performance smoke test on 10K reasoning steps.
 
 Measures:
