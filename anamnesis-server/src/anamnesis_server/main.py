@@ -17,6 +17,7 @@ would swap the in-process registries for a shared sqlite/postgres + redis.
 
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 from typing import Any
@@ -57,6 +58,23 @@ def _make_embedder() -> Any:
     return hash_embedder(dim=128)
 
 
+def _tenant_db_filename(tenant: str) -> str:
+    """Collision-free, filesystem-safe db filename for a tenant id.
+
+    Sanitising special characters to '_' alone is NOT injective: distinct
+    tenants like 'a/b', 'a.b' and 'a b' would all map to 'a_b' and then share
+    one sqlite file -- a cross-tenant data leak in file-backed deployments.
+    We therefore append a SHA-256 digest of the *raw* tenant id (which is the
+    actual isolation key) so two different tenants can never collide, while a
+    sanitised prefix keeps the filename human-readable for ops. Path
+    separators in `tenant` cannot escape `_db_root`: the prefix is sanitised
+    and the digest is hex-only.
+    """
+    prefix = "".join(c if c.isalnum() or c in "-_" else "_" for c in tenant)[:40]
+    digest = hashlib.sha256(tenant.encode("utf-8")).hexdigest()[:32]
+    return f"{prefix}-{digest}"
+
+
 def _signer_from_env_or_random() -> ReceiptSigner:
     """If ANAMNESIS_SIGNING_SEED_B64 is set, recover deterministic signer.
 
@@ -87,8 +105,7 @@ class TenantRegistry:
         s = self._stores.get(tenant)
         if s is None:
             if self._db_root is not None:
-                safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in tenant)
-                db_path = self._db_root / f"{safe}.db"
+                db_path = self._db_root / f"{_tenant_db_filename(tenant)}.db"
                 s = TraceStore(embedder=_make_embedder(), db_path=db_path)
             else:
                 s = TraceStore(embedder=_make_embedder())

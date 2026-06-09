@@ -16,6 +16,7 @@ their workload, not a marketing claim.
 
 from __future__ import annotations
 
+import csv
 import json
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
@@ -29,12 +30,20 @@ from anamnesis.storage import Embedder, ReasoningStep, TraceStore, embedder_for
 class WorkloadRow:
     query: str
     thinking_tokens: int
+    # Captured for completeness; the savings simulation prices thinking-token
+    # reuse only, so output_tokens does not currently affect the report.
     output_tokens: int = 0
 
 
 @dataclass(frozen=True, slots=True)
 class ProviderPricing:
-    """Per-million-token cost of thinking-tokens for the prospect's provider."""
+    """Per-million-token rates for the prospect's provider.
+
+    Only ``thinking_usd_per_mtok`` drives the savings maths today -- reuse saves
+    thinking tokens, not visible output. ``output_usd_per_mtok`` is carried for
+    completeness (e.g. to price the full request) but is intentionally not used
+    by :func:`run_savings_simulation`, which reports thinking-token savings only.
+    """
 
     name: str
     thinking_usd_per_mtok: float
@@ -108,24 +117,90 @@ def load_workload_jsonl(path: str | Path) -> Iterator[WorkloadRow]:
             )
 
 
+def _coerce_tokens(value: object) -> int:
+    """Parse a token count that may be blank/None into a non-negative int."""
+    if value is None:
+        return 0
+    text = str(value).strip()
+    if not text:
+        return 0
+    return int(text)
+
+
+def load_workload_csv(path: str | Path) -> Iterator[WorkloadRow]:
+    """Read a CSV file with a header row that includes at least
+    ``query`` and ``thinking_tokens`` columns (``output_tokens`` optional).
+
+    Mirrors :func:`load_workload_jsonl`: blank lines are skipped and any row
+    whose token columns are not integers raises ``ValueError`` naming the
+    offending line so the prospect can fix their export.
+    """
+    with Path(path).open("r", encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames is None:
+            return
+        if "query" not in reader.fieldnames or "thinking_tokens" not in reader.fieldnames:
+            raise ValueError(
+                "CSV must have a header row with at least "
+                "'query' and 'thinking_tokens' columns"
+            )
+        for row in reader:
+            # csv.DictReader skips truly empty lines, but a line with only
+            # delimiters yields a row of all-empty values -- treat as blank.
+            if not any((v or "").strip() for v in row.values()):
+                continue
+            try:
+                thinking_tokens = _coerce_tokens(row.get("thinking_tokens"))
+                output_tokens = _coerce_tokens(row.get("output_tokens"))
+            except ValueError as e:
+                raise ValueError(f"line {reader.line_num}: {e}") from e
+            yield WorkloadRow(
+                query=str(row.get("query") or ""),
+                thinking_tokens=thinking_tokens,
+                output_tokens=output_tokens,
+            )
+
+
+def load_workload(path: str | Path) -> Iterator[WorkloadRow]:
+    """Load a workload, dispatching on file extension.
+
+    ``.csv`` is parsed as CSV; everything else (``.jsonl``, ``.json``, ...)
+    is parsed as JSONL. This is the entry point the docstring promises:
+    "paste a CSV/JSONL of (query, thinking_tokens, output_tokens) triples".
+    """
+    if Path(path).suffix.lower() == ".csv":
+        return load_workload_csv(path)
+    return load_workload_jsonl(path)
+
+
 def run_savings_simulation(
     rows: Iterable[WorkloadRow],
     *,
     pricing: ProviderPricing,
     embedder: Embedder | None = None,
     alpha: float = 0.1,
+    reuse_threshold: float = 0.15,
     min_calibration: int = 30,
     warmup_fraction: float = 0.2,
 ) -> SavingsReport:
     """Simulate what Anamnesis would have saved on a prospect's own workload.
 
     Procedure:
-      1. Pick the first `warmup_fraction` of rows to build the candidate store
-         and the calibration set (we treat self-similarity scores as proxies
-         for the fresh-vs-retrieved drift, no LLM needed).
-      2. For each subsequent row, query the store for nearest neighbour and
-         apply the conformal threshold. If the top score is <= tau, count
-         the row as reusable and add its thinking_tokens to the savings.
+      1. Use the first `warmup_fraction` of rows to build the candidate store.
+         Each warm-up row is measured against the *prior* index BEFORE it is
+         itself indexed, so the collected nearest-neighbour distances reflect
+         genuine cross-row drift -- never a row matching itself (which would
+         collapse every score to 0). These distances seed a conformal
+         calibrator purely to (a) require a minimum drift sample and (b) record
+         `n_calibration` provenance in the receipt.
+      2. For each subsequent row, query the store for its nearest neighbour. A
+         row counts as reusable when that nearest-neighbour distance
+         d = 1 - cos(embed(query), embed(prior)) is <= `reuse_threshold`. The
+         threshold is the operator's accepted worst-case semantic drift (tau):
+         it is an explicit policy, not a quantile of the workload's own scores.
+         (A self-similarity quantile is degenerate here -- conformal coverage
+         is (1 - alpha) by construction, so it would label ~(1 - alpha) of
+         *every* workload reusable regardless of redundancy.)
       3. Report dollar value at the prospect's provider rates.
 
     The numbers are conservative: they assume every reusable query saves
@@ -139,44 +214,51 @@ def run_savings_simulation(
         raise ValueError(
             f"need at least {min_calibration * 2} rows to simulate, got {n}"
         )
+    if not 0.0 <= reuse_threshold <= 2.0:
+        raise ValueError(
+            f"reuse_threshold must be in [0, 2] (it is a 1-cos distance), "
+            f"got {reuse_threshold}"
+        )
     emb = embedder or embedder_for("hash", dim=128)
     store = TraceStore(embedder=emb)
     cal = ConformalCalibrator(alpha=alpha, min_calibration=min_calibration)
 
     warmup_n = max(min_calibration, int(n * warmup_fraction))
 
-    # warm-up: index queries + seed the calibrator from intra-warmup self-similarity.
-    seen_steps: list[str] = []
+    def _measure_then_index(row: WorkloadRow, *, have_prior: bool) -> None:
+        """Score the row against the existing index, then add it.
+
+        Querying BEFORE indexing is essential: if the row were indexed first it
+        would match itself at distance 0 and poison the calibration sample.
+        """
+        if have_prior:
+            top = store.query_similar_steps(row.query, k=1)
+            if top:
+                cal.add(float(top[0][1]))
+        store.add_steps([ReasoningStep.make("workload", row.query, "i")])
+
+    # warm-up: collect real nearest-prior-neighbour distances.
+    seen = 0
     for r in rows_list[:warmup_n]:
         if not r.query.strip():
             continue
-        step = ReasoningStep.make("workload", r.query, "i")
-        store.add_steps([step])
-        seen_steps.append(step.step_id)
-        if len(seen_steps) > 1:
-            # measure the *new* row against the existing index
-            top = store.query_similar_steps(r.query, k=1)
-            if top:
-                cal.add(float(top[0][1]))
+        _measure_then_index(r, have_prior=seen > 0)
+        seen += 1
 
-    # backfill calibrator if too few warmup self-similarities
+    # backfill the calibration sample if the warm-up produced too few scores.
     while not cal.ready and warmup_n < n:
         r = rows_list[warmup_n]
         warmup_n += 1
         if not r.query.strip():
             continue
-        step = ReasoningStep.make("workload", r.query, "i")
-        store.add_steps([step])
-        top = store.query_similar_steps(r.query, k=1)
-        if top:
-            cal.add(float(top[0][1]))
+        _measure_then_index(r, have_prior=True)
 
     if not cal.ready:
         raise RuntimeError(
-            f"could not warm calibrator: need {min_calibration} self-similarity scores"
+            f"could not warm calibrator: need {min_calibration} drift scores"
         )
 
-    bound = cal.threshold()
+    n_calibration = cal.n
     total_queries = 0
     total_thinking_tokens = 0
     reusable_queries = 0
@@ -188,12 +270,11 @@ def run_savings_simulation(
         if not r.query.strip():
             continue
         results = store.query_similar_steps(r.query, k=1)
-        if results and results[0][1] <= bound.tau:
+        if results and results[0][1] <= reuse_threshold:
             reusable_queries += 1
             reused_thinking_tokens += r.thinking_tokens
         # always grow the store so later rows can match this one too
-        step = ReasoningStep.make("workload", r.query, "i")
-        store.add_steps([step])
+        store.add_steps([ReasoningStep.make("workload", r.query, "i")])
 
     total_cost_usd = total_thinking_tokens / 1_000_000 * pricing.thinking_usd_per_mtok
     reused_cost_usd = reused_thinking_tokens / 1_000_000 * pricing.thinking_usd_per_mtok
@@ -212,9 +293,9 @@ def run_savings_simulation(
         reused_thinking_cost_usd=reused_cost_usd,
         reuse_rate_pct=reuse_rate,
         savings_rate_pct=savings_rate,
-        tau=bound.tau,
-        alpha=bound.alpha,
-        n_calibration=bound.n_calibration,
+        tau=reuse_threshold,
+        alpha=alpha,
+        n_calibration=n_calibration,
         provider=pricing.name,
     )
 

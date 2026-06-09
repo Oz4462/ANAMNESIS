@@ -142,7 +142,8 @@ def distill(from_file: str, distiller: str, provider: str, model: str) -> None:
     "--from-file", "-i",
     type=click.Path(exists=True, dir_okay=False),
     required=True,
-    help="JSONL file with {query, thinking_tokens, output_tokens} per line",
+    help="JSONL ({query, thinking_tokens, output_tokens} per line) or CSV "
+         "(.csv with matching header columns) workload file",
 )
 @click.option(
     "--provider", "-p",
@@ -152,22 +153,31 @@ def distill(from_file: str, distiller: str, provider: str, model: str) -> None:
 )
 @click.option("--alpha", type=float, default=0.1, show_default=True)
 @click.option(
-    "--min-calibration", type=int, default=30, show_default=True,
-    help="Minimum scores before the conformal threshold is computed",
+    "--reuse-threshold", type=float, default=0.15, show_default=True,
+    help="Accepted worst-case semantic drift tau (a 1-cos distance in [0,2]); "
+         "a query counts as reusable when its nearest prior neighbour is within it",
 )
-def savings(from_file: str, provider: str, alpha: float, min_calibration: int) -> None:
+@click.option(
+    "--min-calibration", type=int, default=30, show_default=True,
+    help="Minimum drift scores collected before the simulation runs",
+)
+def savings(
+    from_file: str, provider: str, alpha: float,
+    reuse_threshold: float, min_calibration: int,
+) -> None:
     """Estimate token-savings on a prospect's own workload (no LLM calls)."""
     from anamnesis.savings import (
         PROVIDER_REGISTRY,
-        load_workload_jsonl,
+        load_workload,
         run_savings_simulation,
     )
-    rows = list(load_workload_jsonl(from_file))
+    rows = list(load_workload(from_file))
     pricing = PROVIDER_REGISTRY[provider]
     report = run_savings_simulation(
         rows,
         pricing=pricing,
         alpha=alpha,
+        reuse_threshold=reuse_threshold,
         min_calibration=min_calibration,
     )
     out = report.to_dict()

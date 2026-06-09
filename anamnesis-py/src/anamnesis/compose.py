@@ -67,7 +67,8 @@ def compose(retrieval: RetrievalResult, user_text: str) -> ComposedPrompt:
         )
 
     bound = retrieval.bound
-    assert bound is not None  # accepted is non-empty implies bound exists
+    if bound is None:  # accepted is non-empty only when a bound was computed
+        raise ValueError("retrieval has accepted candidates but no conformal bound")
 
     lines = [_HEADER]
     lines.append(
