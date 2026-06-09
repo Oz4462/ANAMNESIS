@@ -182,9 +182,10 @@ def main() -> int:
             f"  reuse after restart: abstained={reuse2['abstained']} "
             f"candidates={len(reuse2['candidates'])}"
         )
-        # NB the in-memory numpy vectors don't survive restart in this MVP -- only
-        # the sqlite rows do. So the candidate list will be empty even though the
-        # trace rows persisted. We confirm the rows are there with a direct SQL probe.
+        # NB TraceStore rebuilds its in-memory numpy index from the persisted
+        # sqlite rows on startup (see _rebuild_index_from_sqlite), so retrieval
+        # works again after a restart -- the candidate list is NOT empty. We
+        # still probe sqlite directly below to confirm the rows themselves.
 
         # Verify the receipt issued BEFORE restart still passes verification
         verifier = ReceiptVerifier.from_public_key_b64("persistence-key", pub_b64)
@@ -195,7 +196,9 @@ def main() -> int:
         # Directly probe sqlite to confirm trace rows persisted
         import sqlite3
 
-        db_file = db_root / "persist-tenant.db"
+        from anamnesis_server.main import _tenant_db_filename
+
+        db_file = db_root / f"{_tenant_db_filename('persist-tenant')}.db"
         with sqlite3.connect(str(db_file)) as conn:
             n_traces = conn.execute("SELECT COUNT(*) FROM traces").fetchone()[0]
             n_steps = conn.execute("SELECT COUNT(*) FROM steps").fetchone()[0]
