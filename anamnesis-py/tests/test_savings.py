@@ -89,6 +89,41 @@ def test_savings_dollar_math_is_exact():
     assert report.total_thinking_cost_usd == pytest.approx(expected_total)
 
 
+def test_reuse_threshold_is_a_real_knob():
+    """Regression guard for the warm-up calibration bug.
+
+    With the old self-similarity calibration tau collapsed to 0, so the reuse
+    rate was identical (and near-zero) for every threshold. A meaningful
+    simulation must let a larger accepted drift admit strictly more reuse.
+    """
+    rows = [
+        WorkloadRow(query=f"completely unique question number {i} about topic {i}",
+                    thinking_tokens=1000)
+        for i in range(200)
+    ]
+    tight = run_savings_simulation(
+        rows, pricing=ProviderPricing.claude_opus_4_7(), reuse_threshold=0.10
+    )
+    loose = run_savings_simulation(
+        rows, pricing=ProviderPricing.claude_opus_4_7(), reuse_threshold=0.30
+    )
+    assert loose.reuse_rate_pct > tight.reuse_rate_pct + 20.0, (
+        f"threshold had no effect: tight={tight.reuse_rate_pct} "
+        f"loose={loose.reuse_rate_pct} (calibration may be degenerate)"
+    )
+    # tau is recorded verbatim as the operator's accepted drift policy.
+    assert tight.tau == 0.10
+    assert loose.tau == 0.30
+
+
+def test_invalid_reuse_threshold_raises():
+    rows = [WorkloadRow(query=f"q{i}", thinking_tokens=10) for i in range(100)]
+    with pytest.raises(ValueError, match="reuse_threshold"):
+        run_savings_simulation(
+            rows, pricing=ProviderPricing.claude_opus_4_7(), reuse_threshold=2.5
+        )
+
+
 def test_too_few_rows_raises():
     rows = [WorkloadRow(query="q", thinking_tokens=10)] * 10
     with pytest.raises(ValueError):

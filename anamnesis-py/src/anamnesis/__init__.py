@@ -8,10 +8,13 @@ from anamnesis.capture import (
     AnthropicCapture,
     CapturedTrace,
     DeepSeekCapture,
+    GeminiCapture,
+    MistralCapture,
     OpenAICapture,
     adapter_for,
 )
 from anamnesis.conformal import (
+    ConditionalConformalCalibrator,
     ConformalCalibrator,
     MondrianCalibrator,
     ReuseBound,
@@ -19,10 +22,12 @@ from anamnesis.conformal import (
 )
 from anamnesis.distill import (
     DISTILL_PROMPT_TEMPLATE,
+    AnthropicHaikuDistiller,
     Distiller,
     HeuristicDistiller,
     LLMDistiller,
     distill_traces,
+    distiller_for,
 )
 from anamnesis.receipts import (
     BoundRef,
@@ -53,14 +58,18 @@ __all__ = [
     "DISTILL_PROMPT_TEMPLATE",
     "PROVIDER_REGISTRY",
     "AnthropicCapture",
+    "AnthropicHaikuDistiller",
     "BoundRef",
     "CapturedTrace",
+    "ConditionalConformalCalibrator",
     "ConformalCalibrator",
     "DeepSeekCapture",
     "Distiller",
     "Embedder",
+    "GeminiCapture",
     "HeuristicDistiller",
     "LLMDistiller",
+    "MistralCapture",
     "ModelRef",
     "MondrianCalibrator",
     "OpenAICapture",
@@ -77,6 +86,7 @@ __all__ = [
     "__version__",
     "adapter_for",
     "distill_traces",
+    "distiller_for",
     "hash_embedder",
     "load_workload",
     "load_workload_csv",
