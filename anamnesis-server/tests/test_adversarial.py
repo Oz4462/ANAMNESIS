@@ -14,7 +14,7 @@ at the production deployment. We assert that:
 from __future__ import annotations
 
 import pytest
-from anamnesis_server.main import create_app
+from anamnesis_server.main import TenantRegistry, _tenant_db_filename, create_app
 from fastapi.testclient import TestClient
 
 
@@ -176,6 +176,36 @@ def test_extremely_short_thinking_yields_zero_steps(client):
     )
     assert r.status_code == 200
     assert r.json()["n_steps_distilled"] == 0
+
+
+@pytest.mark.parametrize(
+    ("a", "b"),
+    [
+        ("a/b", "a.b"),
+        ("a b", "a_b"),
+        ("acme🔥", "acme💥"),
+        ("../../etc/passwd", "......etc.passwd"),
+    ],
+)
+def test_distinct_tenants_get_distinct_db_filenames(a, b):
+    """Sanitising specials to '_' is not injective; the digest suffix must
+    keep colliding-looking tenant ids on separate sqlite files."""
+    assert a != b
+    assert _tenant_db_filename(a) != _tenant_db_filename(b)
+
+
+def test_tenant_db_filename_has_no_path_separators():
+    name = _tenant_db_filename("../../etc/passwd")
+    assert "/" not in name and "\\" not in name and ".." not in name
+
+
+def test_file_backed_tenants_do_not_share_storage(tmp_path):
+    """End-to-end: two tenants that previously collided to one file must now
+    resolve to different sqlite databases under ANAMNESIS_DB_ROOT."""
+    registry = TenantRegistry(db_root=tmp_path)
+    path_a = registry.store("a/b")._db_path
+    path_b = registry.store("a.b")._db_path
+    assert path_a != path_b
 
 
 def test_provider_string_with_unknown_value_still_stored(client):
