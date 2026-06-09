@@ -56,6 +56,7 @@ _PASSING: frozenset[ClaimStatus] = frozenset({"OK", "REMOVED"})
 
 TECHNICAL_TYPES = {"technical", "math", "performance", "security", "functional"}
 NON_TECHNICAL_TYPES = {"market", "regulatory", "pricing", "operational", "competitive", "non-technical"}
+_KNOWN_TYPES = TECHNICAL_TYPES | NON_TECHNICAL_TYPES
 
 
 def _check_status_partition_exhaustive() -> None:
@@ -134,6 +135,18 @@ def audit(claims_path: Path, repo_root: Path) -> list[ClaimReport]:
 
         type_match = TYPE_RE.search(section)
         claim_type = type_match.group(1).lower() if type_match else None
+
+        # A declared Type must belong to the known taxonomy. An unrecognised
+        # type (typically a typo such as `Type: secrity`) is a hard failure:
+        # it silently defeats the technical/non-technical pin policy below.
+        if claim_type is not None and claim_type not in _KNOWN_TYPES:
+            reports.append(ClaimReport(
+                claim_title=title,
+                status="TYPE_MISMATCH",
+                type=claim_type,
+                detail=f"declared Type '{claim_type}' is not a recognised claim type",
+            ))
+            continue
 
         pins = TEST_PIN_RE.findall(section)
         if not pins:
