@@ -37,6 +37,8 @@ from anamnesis.savings import (
     ProviderPricing,
     SavingsReport,
     WorkloadRow,
+    load_workload,
+    load_workload_csv,
     load_workload_jsonl,
     run_savings_simulation,
 )
@@ -76,6 +78,8 @@ __all__ = [
     "adapter_for",
     "distill_traces",
     "hash_embedder",
+    "load_workload",
+    "load_workload_csv",
     "load_workload_jsonl",
     "one_minus_cosine",
     "run_savings_simulation",

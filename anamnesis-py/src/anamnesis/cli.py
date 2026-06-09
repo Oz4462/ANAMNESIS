@@ -142,7 +142,8 @@ def distill(from_file: str, distiller: str, provider: str, model: str) -> None:
     "--from-file", "-i",
     type=click.Path(exists=True, dir_okay=False),
     required=True,
-    help="JSONL file with {query, thinking_tokens, output_tokens} per line",
+    help="JSONL ({query, thinking_tokens, output_tokens} per line) or CSV "
+         "(.csv with matching header columns) workload file",
 )
 @click.option(
     "--provider", "-p",
@@ -159,10 +160,10 @@ def savings(from_file: str, provider: str, alpha: float, min_calibration: int) -
     """Estimate token-savings on a prospect's own workload (no LLM calls)."""
     from anamnesis.savings import (
         PROVIDER_REGISTRY,
-        load_workload_jsonl,
+        load_workload,
         run_savings_simulation,
     )
-    rows = list(load_workload_jsonl(from_file))
+    rows = list(load_workload(from_file))
     pricing = PROVIDER_REGISTRY[provider]
     report = run_savings_simulation(
         rows,

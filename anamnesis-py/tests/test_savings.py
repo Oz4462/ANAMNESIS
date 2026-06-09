@@ -15,6 +15,8 @@ from anamnesis.savings import (
     ProviderPricing,
     SavingsReport,
     WorkloadRow,
+    load_workload,
+    load_workload_csv,
     load_workload_jsonl,
     run_savings_simulation,
 )
@@ -119,6 +121,58 @@ def test_load_jsonl_invalid_line_raises(tmp_path):
     f.write_text('{"query":"a","thinking_tokens":1}\nnot-json\n')
     with pytest.raises(ValueError, match="line 2"):
         list(load_workload_jsonl(f))
+
+
+def test_load_csv_round_trip(tmp_path):
+    f = tmp_path / "workload.csv"
+    f.write_text(
+        "query,thinking_tokens,output_tokens\n"
+        + "\n".join(f"q{i},100,10" for i in range(5))
+        + "\n"
+    )
+    rows = list(load_workload_csv(f))
+    assert len(rows) == 5
+    assert rows[0].query == "q0"
+    assert rows[0].thinking_tokens == 100
+    assert rows[0].output_tokens == 10
+
+
+def test_load_csv_output_tokens_optional(tmp_path):
+    f = tmp_path / "workload.csv"
+    f.write_text("query,thinking_tokens\na,5\nb,7\n")
+    rows = list(load_workload_csv(f))
+    assert [r.thinking_tokens for r in rows] == [5, 7]
+    assert all(r.output_tokens == 0 for r in rows)
+
+
+def test_load_csv_skips_blank_lines(tmp_path):
+    f = tmp_path / "workload.csv"
+    f.write_text("query,thinking_tokens\na,1\n\nb,2\n,\n")
+    rows = list(load_workload_csv(f))
+    assert [r.query for r in rows] == ["a", "b"]
+
+
+def test_load_csv_missing_required_header_raises(tmp_path):
+    f = tmp_path / "bad.csv"
+    f.write_text("query,output_tokens\na,1\n")
+    with pytest.raises(ValueError, match="thinking_tokens"):
+        list(load_workload_csv(f))
+
+
+def test_load_csv_non_integer_tokens_raises(tmp_path):
+    f = tmp_path / "bad.csv"
+    f.write_text("query,thinking_tokens\na,1\nb,not-a-number\n")
+    with pytest.raises(ValueError, match="line 3"):
+        list(load_workload_csv(f))
+
+
+def test_load_workload_dispatches_on_extension(tmp_path):
+    csv_f = tmp_path / "w.csv"
+    csv_f.write_text("query,thinking_tokens\na,1\n")
+    jsonl_f = tmp_path / "w.jsonl"
+    jsonl_f.write_text('{"query":"b","thinking_tokens":2}\n')
+    assert list(load_workload(csv_f))[0].query == "a"
+    assert list(load_workload(jsonl_f))[0].query == "b"
 
 
 def test_provider_registry_has_known_models():

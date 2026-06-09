@@ -16,6 +16,7 @@ their workload, not a marketing claim.
 
 from __future__ import annotations
 
+import csv
 import json
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
@@ -106,6 +107,62 @@ def load_workload_jsonl(path: str | Path) -> Iterator[WorkloadRow]:
                 thinking_tokens=int(obj.get("thinking_tokens", 0) or 0),
                 output_tokens=int(obj.get("output_tokens", 0) or 0),
             )
+
+
+def _coerce_tokens(value: object) -> int:
+    """Parse a token count that may be blank/None into a non-negative int."""
+    if value is None:
+        return 0
+    text = str(value).strip()
+    if not text:
+        return 0
+    return int(text)
+
+
+def load_workload_csv(path: str | Path) -> Iterator[WorkloadRow]:
+    """Read a CSV file with a header row that includes at least
+    ``query`` and ``thinking_tokens`` columns (``output_tokens`` optional).
+
+    Mirrors :func:`load_workload_jsonl`: blank lines are skipped and any row
+    whose token columns are not integers raises ``ValueError`` naming the
+    offending line so the prospect can fix their export.
+    """
+    with Path(path).open("r", encoding="utf-8", newline="") as fh:
+        reader = csv.DictReader(fh)
+        if reader.fieldnames is None:
+            return
+        if "query" not in reader.fieldnames or "thinking_tokens" not in reader.fieldnames:
+            raise ValueError(
+                "CSV must have a header row with at least "
+                "'query' and 'thinking_tokens' columns"
+            )
+        for row in reader:
+            # csv.DictReader skips truly empty lines, but a line with only
+            # delimiters yields a row of all-empty values -- treat as blank.
+            if not any((v or "").strip() for v in row.values()):
+                continue
+            try:
+                thinking_tokens = _coerce_tokens(row.get("thinking_tokens"))
+                output_tokens = _coerce_tokens(row.get("output_tokens"))
+            except ValueError as e:
+                raise ValueError(f"line {reader.line_num}: {e}") from e
+            yield WorkloadRow(
+                query=str(row.get("query") or ""),
+                thinking_tokens=thinking_tokens,
+                output_tokens=output_tokens,
+            )
+
+
+def load_workload(path: str | Path) -> Iterator[WorkloadRow]:
+    """Load a workload, dispatching on file extension.
+
+    ``.csv`` is parsed as CSV; everything else (``.jsonl``, ``.json``, ...)
+    is parsed as JSONL. This is the entry point the docstring promises:
+    "paste a CSV/JSONL of (query, thinking_tokens, output_tokens) triples".
+    """
+    if Path(path).suffix.lower() == ".csv":
+        return load_workload_csv(path)
+    return load_workload_jsonl(path)
 
 
 def run_savings_simulation(
